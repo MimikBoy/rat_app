@@ -59,6 +59,18 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+     - family: Wingdings
+       fonts:
+         - asset: assets/fonts/wingding.ttf
+     - family: Roboto
+       fonts:
+         - asset: assets/fonts/Roboto-Regular.ttf
+         - asset: assets/fonts/Roboto-Bold.ttf
+         - asset: assets/fonts/Roboto-Italic.ttf
+         - asset: assets/fonts/Roboto-BoldItalic.ttf
+    
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

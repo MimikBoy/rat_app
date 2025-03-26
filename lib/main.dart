@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  var selectedIndex = -1;
+  var selectedIndex = -2;
 
   void _incrementCounter() {
     setState(() {
@@ -39,18 +39,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _changeScreen() {
+  void _changeScreen(int index) {
     setState(() {
-      selectedIndex = 0;
+      selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     switch (selectedIndex) {
-      case -1:
+      case -2:
       // Show the WelcomeScreen.
       return WelcomeScreen(onContinue: _changeScreen,);
+      case -1:
+      // Show the WhatAreYou screen.
+      return WhatAreYou(onContinue: _changeScreen,);
       case 0:
       // Show the HomePage.
       return Scaffold(

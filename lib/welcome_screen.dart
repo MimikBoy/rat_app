@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  final VoidCallback onContinue;
+  final void Function(int) onContinue;
 
   const WelcomeScreen({super.key, required this.onContinue});
   @override
@@ -13,9 +13,10 @@ class WelcomeScreen extends StatelessWidget {
           Expanded(
             child: Center(
               child: SizedBox(
-                  child: Text(
+                    child: Text(
                     'Welcome to the RAT!',
-                    style: TextStyle(fontSize: 32.0),)
+                    style: TextStyle(fontSize: 32.0, fontFamily: 'Roboto'),
+                    )
                   ),
             ),
           ),    
@@ -24,12 +25,68 @@ class WelcomeScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
               Logger().i('Continue button pressed');
-              onContinue();
+              onContinue(-1);
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
               ),
               child: Text('Continue'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WhatAreYou extends StatelessWidget {
+  final void Function(int) onContinue;
+
+  const WhatAreYou({super.key, required this.onContinue});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch, // stretches children horizontally
+        children: [
+          SafeArea(
+            child: SizedBox(
+              child: Text(
+                'What are you???',
+                style: TextStyle(fontSize: 32.0),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch, // makes buttons fill vertical space
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Left button action
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    ),
+                    child: const Text('Left'),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Right button action
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    ),
+                    child: const Text('Right'),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
