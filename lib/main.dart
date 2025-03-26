@@ -39,35 +39,42 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _changeScreen() {
+    setState(() {
+      selectedIndex = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (selectedIndex == -1) {
+    switch (selectedIndex) {
+      case -1:
       // Show the WelcomeScreen.
-      return const WelcomeScreen();
-    } else if (selectedIndex == 0) {
+      return WelcomeScreen(onContinue: _changeScreen,);
+      case 0:
       // Show the HomePage.
       return Scaffold(
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text('You have pushed the button this many times:'),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+          const Text('You have pushed the button this many times:'),
+          Text(
+            '$_counter',
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
+          ],
+        ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
         ),
       );
-    } else {
+      default:
       Logger().e('Invalid index: $selectedIndex');
-      return const WelcomeScreen();
+      return WelcomeScreen(onContinue: _changeScreen,);
     }
   }
 }
