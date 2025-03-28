@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'runner_start_screens.dart';
 
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
@@ -18,7 +19,6 @@ PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
               );
 }
 class WelcomeScreen extends StatelessWidget {
-
   const WelcomeScreen({super.key});
   @override
   Widget build(BuildContext context){
@@ -34,10 +34,10 @@ class WelcomeScreen extends StatelessWidget {
                     )
                   ),
             ),
-          ),    
-          Padding(
-            padding: const EdgeInsets.only(bottom: 50.0),
-            child: ElevatedButton(
+          ),
+          SafeArea(
+            child: 
+            ElevatedButton(
               onPressed: () {
               Logger().i('Continue button pressed');  
                 Navigator.push(
@@ -50,7 +50,7 @@ class WelcomeScreen extends StatelessWidget {
               // ),
               child: Text('Continue'),
             ),
-          ),
+          )  
         ],
       ),
     );
@@ -74,16 +74,12 @@ class WhatAreYou extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch, // stretches children horizontally
         children: [
-          SafeArea(
-            child: SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 0.0),
-                child: Text(
-                  'What are you???',
-                  style: TextStyle(fontSize: 32.0),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: Text(
+              'What are you???',
+              style: TextStyle(fontSize: 32.0),
+              textAlign: TextAlign.center,
             ),
           ),
           Expanded(
@@ -93,7 +89,10 @@ class WhatAreYou extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Left button action
+                      Navigator.push(
+                        context, 
+                        pageTransSwipeLeft(DataScreen()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
