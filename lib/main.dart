@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  var selectedIndex = -2;
+  var selectedIndex = -1;
 
   void _incrementCounter() {
     setState(() {
@@ -48,12 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     switch (selectedIndex) {
-      case -2:
-      // Show the WelcomeScreen.
-      return WelcomeScreen(onContinue: _changeScreen,);
       case -1:
-      // Show the WhatAreYou screen.
-      return WhatAreYou(onContinue: _changeScreen,);
+      // Show the WelcomeScreen.
+      return WelcomeScreen();
       case 0:
       // Show the HomePage.
       return Scaffold(
@@ -77,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
       default:
       Logger().e('Invalid index: $selectedIndex');
-      return WelcomeScreen(onContinue: _changeScreen,);
+      return WelcomeScreen();
     }
   }
 }
