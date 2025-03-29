@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+  // Checking if there is something stored in shared preferences.
+  // WidgetsFlutterBinding.ensureInitialized();
+  // final prefs = await SharedPreferences.getInstance();
+  // int storedWeight = prefs.getInt('weight') ?? -1;
+  // Logger().i('Stored weight: $storedWeight');
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -30,12 +37,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  var selectedIndex = -1;
+  int selectedIndex = -1;
 
-  void _incrementCounter() {
+  @override
+  void initState() {
+    super.initState();
+    _initPrefs();
+  }
+
+  void _initPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _counter++;
+      selectedIndex = prefs.getInt('mode') ?? -1;
+      Logger().i('Stored index: $selectedIndex');
     });
   }
 
@@ -50,31 +64,13 @@ class _MyHomePageState extends State<MyHomePage> {
     switch (selectedIndex) {
       case -1:
       // Show the WelcomeScreen.
-      return WelcomeScreen();
+      return WelcomeScreen(onContinue: _changeScreen,);
       case 0:
       // Show the HomePage.
-      return Scaffold(
-        body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-          const Text('You have pushed the button this many times:'),
-          Text(
-            '$_counter',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          ],
-        ),
-        ),
-        floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-        ),
-      );
+      return Placeholder();
       default:
       Logger().e('Invalid index: $selectedIndex');
-      return WelcomeScreen();
+      return WelcomeScreen(onContinue: _changeScreen,);
     }
   }
 }

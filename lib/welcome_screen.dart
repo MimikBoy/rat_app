@@ -19,7 +19,8 @@ PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
               );
 }
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
+  final void Function(int) onContinue;
+  const WelcomeScreen({super.key, required this.onContinue});
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -42,7 +43,7 @@ class WelcomeScreen extends StatelessWidget {
               Logger().i('Continue button pressed');  
                 Navigator.push(
                   context,
-                  pageTransSwipeLeft(WhatAreYou()),
+                  pageTransSwipeLeft(WhatAreYou(onContinue: onContinue,)),
                 );
               },
               // style: ElevatedButton.styleFrom(
@@ -58,8 +59,8 @@ class WelcomeScreen extends StatelessWidget {
 }
 
 class WhatAreYou extends StatelessWidget {
-
-  const WhatAreYou({super.key});
+final void Function(int) onContinue;
+  const WhatAreYou({super.key, required this.onContinue});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +92,7 @@ class WhatAreYou extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context, 
-                        pageTransSwipeLeft(DataScreen()),
+                        pageTransSwipeLeft(DataScreen(onContinue: onContinue,)),
                       );
                     },
                     style: ElevatedButton.styleFrom(
