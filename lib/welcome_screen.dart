@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'runner_start_screens.dart';
 
+// Used to create a page transition effect when navigating between screens.
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
                 transitionDuration: const Duration(milliseconds: 150),
@@ -18,6 +19,8 @@ PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
                 },
               );
 }
+
+// WelcomeScreen widget to display the welcome screen
 class WelcomeScreen extends StatelessWidget {
   final void Function(int) onContinue;
   const WelcomeScreen({super.key, required this.onContinue});
@@ -58,6 +61,7 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
+// To check if the user is a runner or a trainer
 class WhatAreYou extends StatelessWidget {
 final void Function(int) onContinue;
   const WhatAreYou({super.key, required this.onContinue});

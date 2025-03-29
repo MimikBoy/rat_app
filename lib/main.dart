@@ -37,39 +37,44 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int selectedIndex = -1;
+  int startScreen = -1;
 
   @override
+  // Initializes the state of the widget. Called when the widget is first created.
   void initState() {
     super.initState();
     _initPrefs();
   }
 
+  // Initializes initial preferences, such as the starting screen
   void _initPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedIndex = prefs.getInt('mode') ?? -1;
-      Logger().i('Stored index: $selectedIndex');
+      startScreen = prefs.getInt('mode') ?? -1;
+      Logger().i('Stored index: $startScreen');
     });
   }
 
+  // Changes the screen based on the index.
   void _changeScreen(int index) {
     setState(() {
-      selectedIndex = index;
+      startScreen = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    switch (selectedIndex) {
+    switch (startScreen) {
       case -1:
       // Show the WelcomeScreen.
       return WelcomeScreen(onContinue: _changeScreen,);
       case 0:
-      // Show the HomePage.
+      // Show the RunnerHomePage.
       return Placeholder();
+      case 1:
+      // Show the TrainerHomePage.
       default:
-      Logger().e('Invalid index: $selectedIndex');
+      Logger().e('Invalid index: $startScreen');
       return WelcomeScreen(onContinue: _changeScreen,);
     }
   }

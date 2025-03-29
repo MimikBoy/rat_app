@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Field Decoration for integer input fields
 InputDecoration fieldDecoration(String hintText, String suffixText, bool showFieldError) {
   return InputDecoration(
     hintText: hintText,
@@ -13,6 +14,7 @@ InputDecoration fieldDecoration(String hintText, String suffixText, bool showFie
   );
 }
 
+// DataScreen widget to collect user data
 class DataScreen extends StatefulWidget {
   final void Function(int) onContinue;
   const DataScreen({super.key, required this.onContinue});
