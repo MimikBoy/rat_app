@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'runner_screens.dart';
 
 void main() async {
   // Checking if there is something stored in shared preferences.
@@ -70,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return WelcomeScreen(onContinue: _changeScreen,);
       case 0:
       // Show the RunnerHomePage.
-      return Placeholder();
+      return const RunnerPageManager();
       case 1:
       // Show the TrainerHomePage.
       default:

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bluetooth.dart';
+import 'package:rat_app/bluetooth.dart';
 
 void main() {
   runApp(const MyApp());
