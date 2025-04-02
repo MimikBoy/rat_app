@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:typed_data';
+
+final Logger logger = Logger();
 
 class BluetoothManager {
   static final BluetoothManager _instance = BluetoothManager._internal();
@@ -35,9 +38,9 @@ class BluetoothManager {
       connectionLeft!.input?.listen((Uint8List data) {
         String receivedDataLeft = utf8.decode(data).trim();
         if(receivedDataLeft.isNotEmpty){
-        print('Received data Left: $receivedDataLeft');
-        // Process received data here
-        processData(receivedDataLeft, _leftDataController);
+          logger.i('Received data Left: $receivedDataLeft');
+          // Process received data here
+          processData(receivedDataLeft, _leftDataController);
         }
       });
     }
@@ -46,9 +49,9 @@ class BluetoothManager {
       connectionRight!.input?.listen((Uint8List data) {
         String receivedDataRight = utf8.decode(data).trim();
         if (receivedDataRight.isNotEmpty){
-        print('Received data Right: $receivedDataRight');
-        // Process received data here
-        processData(receivedDataRight, _rightDataController);
+          logger.i('Received data Right: $receivedDataRight');
+          // Process received data here
+          processData(receivedDataRight, _rightDataController);
         } 
       });
     }
@@ -58,13 +61,13 @@ class BluetoothManager {
     if (connectionLeft != null && connectionLeft!.isConnected) {
       connectionLeft!.output.add(utf8.encode(data));
       connectionLeft!.output.allSent;
-      print('Sent ' + data + ' to LEFT');
+      logger.i('Sent $data to LEFT');
     }
 
     if (connectionRight != null && connectionRight!.isConnected) {
       connectionRight!.output.add(utf8.encode(data));
       connectionRight!.output.allSent;
-      print('Sent ' + data + ' to RIGHT');
+      logger.i('Sent $data to RIGHT');
     }
   }
 }
@@ -91,7 +94,7 @@ class _BluetoothSetupPageState extends State<BluetoothSetupPage> {
     if (permissionsGranted) {
       _connectToDevices();
     } else {
-      print("Bluetooth permissions not granted.");
+      logger.e("Bluetooth permissions not granted.");
     }
   }
 
@@ -123,32 +126,32 @@ class _BluetoothSetupPageState extends State<BluetoothSetupPage> {
     );
 
     if (deviceLeft.address.isEmpty) {
-      print("Left not found! Make sure it's paired.");
+      logger.e("Left not found! Make sure it's paired.");
       return;
     } else if (deviceRight.address.isEmpty) {
-      print("Right not found! Make sure it's paired.");
+      logger.e("Right not found! Make sure it's paired.");
       return;
     }
 
     try {
       bluetoothManager.connectionLeft = await BluetoothConnection.toAddress(deviceLeft.address);
-      print('Connected to ${deviceLeft.name}');
+      logger.i('Connected to ${deviceLeft.name}');
       _updateStatus("Connected to ${deviceLeft.name}");
 
       await Future.delayed(Duration(seconds: 5));
 
       try {
         bluetoothManager.connectionRight = await BluetoothConnection.toAddress(deviceRight.address);
-        print('Connected to both devices');
+        logger.i('Connected to both devices');
         _updateStatus("Connected to both devices");
 
         await bluetoothManager.sendData('stop'); // Send stop to RIGHT
       } catch (error) {
-        print('Error connecting to RIGHT: $error');
+        logger.e('Error connecting to RIGHT: $error');
         _updateStatus("Error connecting to RIGHT: $error");
       }
     } catch (error) {
-      print('Error connecting to LEFT: $error');
+      logger.e('Error connecting to LEFT: $error');
       _updateStatus("Error connecting to LEFT: $error");
     }
   }

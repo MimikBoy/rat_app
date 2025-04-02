@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:async';
 
 class RunnerPageManager extends StatefulWidget{
@@ -142,10 +143,15 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       Logger().i('Button color changed to red');
       await _countdown();
       _setToStop();
+
+      final service = FlutterBackgroundService();
+      await service.startService();
+      
       _startTimer(0);
     } else {
       Logger().i('Button color changed to green');
-      if (!mounted) return;
+      final service = FlutterBackgroundService();
+      service.invoke('stopService');
       setState((){
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
         _buttonColor = Colors.green;

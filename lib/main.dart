@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'background_service.dart';
 import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,7 @@ void main() async {
   // int storedWeight = prefs.getInt('weight') ?? -1;
   // Logger().i('Stored weight: $storedWeight');
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeService();
   runApp(const MyApp());
 }
 
