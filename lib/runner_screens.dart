@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:async';
+import 'file_management.dart';
 
 class RunnerPageManager extends StatefulWidget{
   const RunnerPageManager({super.key});
@@ -152,6 +153,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       Logger().i('Button color changed to green');
       final service = FlutterBackgroundService();
       service.invoke('stopService');
+      final saveHandler = SaveFileHandler('test', 1234);
       setState((){
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
         _buttonColor = Colors.green;
