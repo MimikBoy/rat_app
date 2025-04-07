@@ -3,6 +3,7 @@ import 'background_service.dart';
 import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'runner_screens.dart';
 import 'bluetooth.dart';
 
@@ -16,6 +17,14 @@ void main() async {
   BluetoothManager btManager = BluetoothManager();
   btManager.initializeBluetooth();
   await initializeService(btManager);
+
+  final status = await Permission.manageExternalStorage.request();
+  if (status.isPermanentlyDenied) {
+    await openAppSettings(); 
+  }else if (!status.isGranted) {
+    Logger().e('Storage permission not granted');
+  }
+
   runApp(const MyApp());
 }
 

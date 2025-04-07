@@ -21,6 +21,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
   IconData rightBatteryIcon = Icons.battery_unknown_rounded;
   Color leftBatteryColor = Colors.grey;
   Color rightBatteryColor = Colors.grey;
+  String appBarTitle = 'Home';
 
   Future<void> handleBatteryButtonPress() async {
     Logger().i('Battery button pressed');
@@ -43,7 +44,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = const RunnerHomePage();
         break;
       case 1:
-        page = Placeholder();
+        page = const RunnerDownloadPage();
         break;
       case 2:
         page = Placeholder();
@@ -55,7 +56,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Home'),
+        title: Text(appBarTitle),
         leading: IconButton(
           icon: const Icon(Icons.circle_outlined, size: 30),
           onPressed: () {
@@ -97,6 +98,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         onTap: (index) {
           setState(() {
             screenIndex = index;
+            appBarTitle = index == 0 ? 'Home' : index == 1 ? 'Downloads' : 'Settings';
           });
           Logger().i('Bottom navigation bar item $index pressed');
         },
@@ -161,13 +163,10 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void _changeColor()  async{
     if (_buttonColor == Colors.green) {
       Logger().i('Button color changed to red');
+      await service.startService();
       await _countdown();
       _setToStop();
-
-      await service.startService();
-      
       _startTimer(0);
-
     } else {
 
       Logger().i('Button color changed to green');
@@ -257,7 +256,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       if (!mounted) return;
       if (data != null) {
         final rawMap = (data['namedVectors'] as Map<String, dynamic>);
-        toStore = rawMap.cast<String, List<double>>();
+        toStore = rawMap.map((key, value) {
+          return MapEntry(key, (value as List<dynamic>).map<double>((e) => e.toDouble()).toList());
+        });
         Logger().i('Received vectors: $toStore');
       }
     });
@@ -306,3 +307,96 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   }
 }
 
+class RunnerDownloadPage extends StatefulWidget {
+  const RunnerDownloadPage({super.key});
+
+  @override
+  State<RunnerDownloadPage> createState() => _RunnerDownloadPageState();
+}
+
+class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
+  int itemCount = 0;
+  List<String> currentList = [];
+
+  Future<void> _loadSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    currentList = prefs.getStringList('fileNames') ?? [];
+    setState(() {
+      itemCount = currentList.length;
+    });
+  }
+
+  void _moveToDownloads(String fileName) async {
+    try{
+      SaveFileHandler fileManager = SaveFileHandler(fileName, 0);
+      await fileManager.download();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File moved to Downloads'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      Logger().e('Error copying file: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to move file: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    _loadSharedPreferences();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      physics: const BouncingScrollPhysics(),
+      itemCount: itemCount,
+      separatorBuilder: (context, index) => const Divider(
+        color: Colors.black,
+        thickness: 1,
+      ),
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  currentList[itemCount - index - 1],
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      _moveToDownloads(currentList[itemCount - index - 1]);
+                    },
+                    icon: Icon(Icons.download_rounded),
+                    color: Colors.green,
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.delete_rounded),
+                    color: Colors.red,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

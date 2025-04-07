@@ -4,11 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:logger/web.dart';
 //import 'package:flutter_background_service_android/flutter_background_service_android.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:logger/logger.dart';
 import 'bluetooth.dart';
-BluetoothManager btManager = BluetoothManager();
 
+BluetoothManager btManager = BluetoothManager();
+bool firstStartServiceIgnored = false;
 
 
 Future<void> initializeService(BluetoothManager blueManager) async {
@@ -44,6 +45,14 @@ void onStart(ServiceInstance service) async {
     if (service is AndroidServiceInstance) {
       service.setAsForegroundService();
     }
+  }
+
+  final prefs = await SharedPreferences.getInstance();
+  bool firstStartIgnored = prefs.getBool('firstStartServiceIgnored') ?? false;
+  if (!firstStartIgnored) {
+    await prefs.setBool('firstStartServiceIgnored', true);
+    await service.stopSelf();
+    return; // Stop further execution on first start.
   }
 
   Logger().i('Background service started');
@@ -107,6 +116,8 @@ void onStart(ServiceInstance service) async {
 
   Timer.periodic(const Duration(seconds: 2), (timer) async {
     Logger().i('Current time: ${DateTime.now()}');
+
+    
     if (service is AndroidServiceInstance) {
       if (!(await service.isForegroundService())) {
         timer.cancel();
