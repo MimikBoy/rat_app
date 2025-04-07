@@ -15,7 +15,7 @@ class SaveFileHandler {
     // Logic to save the file
     String jsonString = jsonEncode(data);
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$fileName.json');
+    final file = File('${dir.path}/$fileName.pokko');
     String encryptedData = "decrypted\n${encryptData(jsonString)}";
     await file.writeAsString(encryptedData);
     Logger().i('File saved: ${file.path}');

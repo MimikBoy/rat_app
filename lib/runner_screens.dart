@@ -177,12 +177,10 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
         _buttonColor = Colors.green;
       });
+      await Future.delayed(const Duration(milliseconds: 100));  
       stopTimer();
     }
     _isCountingDown = false;
-
-    await Future.delayed(const Duration(milliseconds: 100));
-    SaveFileHandler fileHandler = SaveFileHandler('test', 1234);
   }
 
   void _startTimer(int alreadyStarted) async{
@@ -207,13 +205,21 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   }
   
   void stopTimer() async {
+
     _timer?.cancel();
     if (!mounted) return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     await prefs.setInt('timerOn', 0);
+
     List<String> currentList = prefs.getStringList('fileNames') ?? [];
     currentList.add(_startTime.toString().substring(0, _startTime.toString().length - 4));
     await prefs.setStringList('fileNames', currentList);
+
+    int trainerID = prefs.getInt('trainerID') ?? 0;
+    SaveFileHandler fileHandler = SaveFileHandler(_startTime.toString().substring(0, _startTime.toString().length - 4), trainerID);
+    fileHandler.data = toStore;
+    await fileHandler.saveData();
   }
 
   String _formatTime(Duration elapsed) {
