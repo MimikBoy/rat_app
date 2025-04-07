@@ -5,10 +5,10 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:logger/logger.dart';
 import 'bluetooth.dart';
-
-Future<void> initializeService() async {
+BluetoothManager btManager = BluetoothManager();
+Future<void> initializeService(BluetoothManager blueManager) async {
   final service = FlutterBackgroundService();
-
+  btManager = blueManager;
   // Set configuration (for Android)
   await service.configure(
     androidConfiguration: AndroidConfiguration(
@@ -32,13 +32,23 @@ bool onIosBackground(ServiceInstance service) {
   return true;
 }
 
+@pragma('vm:entry-point')
 void onStart(ServiceInstance service) {
   // For Android: set up a periodic timer or stream
   if (service is AndroidServiceInstance) {
     service.setAsForegroundService();
   }
 
-  final btManager = BluetoothManager();
+  List<String> grfLeft, grfRight, grfLeftTime, grfRightTime, groundTimeLeft, groundTimeRight,
+      angleLeft, angleRight, angleTimeLeft, angleTimeRight, batteryLeft, batteryRight;
+
+  btManager.leftDataStream.listen((data) {
+      //JOAS PUT STUFF IN HERE
+  });
+
+  btManager.rightDataStream.listen((data) {
+      //JOAS PUT STUFF IN HERE
+  });
 
   btManager.receiveData();
 

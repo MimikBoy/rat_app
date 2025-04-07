@@ -70,10 +70,74 @@ class BluetoothManager {
       logger.i('Sent $data to RIGHT');
     }
   }
+
+  Future<void> initializeBluetooth() async {
+    
+    bool permissionsGranted = await requestBluetoothPermissions();
+    if (permissionsGranted) {
+      await connectToDevices();
+    } else {
+      logger.e("Bluetooth permissions not granted.");
+    }
+  }
+
+  Future<bool> requestBluetoothPermissions() async {
+    PermissionStatus scanPermission = await Permission.bluetoothScan.request();
+    PermissionStatus connectPermission = await Permission.bluetoothConnect.request();
+
+    if (scanPermission.isGranted && connectPermission.isGranted) {
+      return true;
+    } else {
+      logger.e("Required Bluetooth permissions not granted.");
+      return false;
+    }
+  }
+
+  Future<int> connectToDevices() async {
+    List<BluetoothDevice> devices = await FlutterBluetoothSerial.instance.getBondedDevices();
+    int connectionStatus = 0;
+
+    BluetoothDevice? deviceLeft = devices.firstWhere(
+      (d) => d.name == "LEFT_ESP32",
+      orElse: () => BluetoothDevice(address: "", name: "Unknown"),
+    );
+
+    BluetoothDevice? deviceRight = devices.firstWhere(
+      (d) => d.name == "RIGHT_ESP32",
+      orElse: () => BluetoothDevice(address: "", name: "Unknown"),
+    );
+
+    if (deviceLeft.address.isEmpty) {
+      logger.e("Left not found! Make sure it's paired.");
+      return 0;
+    } else if (deviceRight.address.isEmpty) {
+      logger.e("Right not found! Make sure it's paired.");
+      return 1;
+    }
+
+    try {
+      connectionLeft = await BluetoothConnection.toAddress(deviceLeft.address);
+      logger.i('Connected to ${deviceLeft.name}');
+      await Future.delayed(Duration(seconds: 5));
+      connectionStatus += 1;
+    } catch (error) {
+      logger.e('Error connecting to LEFT: $error');
+    }
+
+    try {
+      connectionRight = await BluetoothConnection.toAddress(deviceRight.address);
+      logger.i('Connected to right');
+      connectionStatus += 2;
+    } catch (error) {
+      logger.e('Error connecting to RIGHT: $error');
+    }
+
+    return connectionStatus;
+  }
 }
 
 class BluetoothSetupPage extends StatefulWidget {
-  const BluetoothSetupPage({Key? key}) : super(key: key);
+  const BluetoothSetupPage({super.key});
 
   @override
   _BluetoothSetupPageState createState() => _BluetoothSetupPageState();

@@ -4,6 +4,7 @@ import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'runner_screens.dart';
+import 'bluetooth.dart';
 
 void main() async {
   // Checking if there is something stored in shared preferences.
@@ -12,7 +13,9 @@ void main() async {
   // int storedWeight = prefs.getInt('weight') ?? -1;
   // Logger().i('Stored weight: $storedWeight');
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeService();
+  BluetoothManager btManager = BluetoothManager();
+  btManager.initializeBluetooth();
+  await initializeService(btManager);
   runApp(const MyApp());
 }
 
@@ -73,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return WelcomeScreen(onContinue: _changeScreen,);
       case 0:
       // Show the RunnerHomePage.
-      return const RunnerPageManager();
+      return RunnerPageManager(btManager: btManager);
       case 1:
       // Show the TrainerHomePage.
       default:

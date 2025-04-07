@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:rat_app/background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:async';
 import 'file_management.dart';
+import 'bluetooth.dart';
 
 class RunnerPageManager extends StatefulWidget{
-  const RunnerPageManager({super.key});
+  final BluetoothManager btManager;
+  const RunnerPageManager({super.key, required this.btManager});
 
   @override
   State<RunnerPageManager> createState() => _RunnerPageManagerState();
@@ -14,7 +17,23 @@ class RunnerPageManager extends StatefulWidget{
 
 class _RunnerPageManagerState extends State<RunnerPageManager> {
   int screenIndex = 0;
+  IconData leftBatteryIcon = Icons.battery_unknown_rounded;
+  IconData rightBatteryIcon = Icons.battery_unknown_rounded;
+  Color leftBatteryColor = Colors.grey;
+  Color rightBatteryColor = Colors.grey;
 
+  Future<void> handleBatteryButtonPress() async {
+    Logger().i('Battery button pressed');
+    int connectionStatus = await btManager.connectToDevices();
+
+    setState(() {
+      // Update icon colors based on the connection status
+      leftBatteryColor = (connectionStatus & 1) != 0 ? Colors.green : Colors.grey;
+      leftBatteryIcon = (connectionStatus & 1) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded;
+      rightBatteryColor = (connectionStatus & 2) != 0 ? Colors.green : Colors.grey;
+      rightBatteryIcon = (connectionStatus & 2) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded; // Right connected
+    });
+  }
 
   @override
   Widget build(BuildContext context){
@@ -47,14 +66,12 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
           IconButton(
             icon: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.battery_unknown_rounded, size: 30),
-                Icon(Icons.battery_unknown_rounded, size: 30)
+              children: [
+                Icon(leftBatteryIcon, size: 30, color: leftBatteryColor,),
+                Icon(rightBatteryIcon, size: 30, color: rightBatteryColor,)
               ],
             ),
-            onPressed: () {
-              Logger().i('Battery button pressed');
-            },
+            onPressed: handleBatteryButtonPress,
           ),
         ],
       ),
@@ -150,10 +167,12 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       
       _startTimer(0);
     } else {
+
       Logger().i('Button color changed to green');
       final service = FlutterBackgroundService();
       service.invoke('stopService');
-      final saveHandler = SaveFileHandler('test', 1234);
+
+      SaveFileHandler('test', 1234);
       setState((){
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
         _buttonColor = Colors.green;
@@ -189,6 +208,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     if (!mounted) return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('timerOn', 0);
+    List<String> currentList = prefs.getStringList('fileNames') ?? [];
+    currentList.add(_startTime.toString().substring(0, _startTime.toString().length - 4));
+    await prefs.setStringList('fileNames', currentList);
   }
 
   String _formatTime(Duration elapsed) {
@@ -266,3 +288,4 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     );
   }
 }
+
