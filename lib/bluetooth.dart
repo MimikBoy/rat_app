@@ -164,7 +164,8 @@ class _BluetoothSetupPageState extends State<BluetoothSetupPage> {
 
   Future<bool> _requestBluetoothPermissions() async {
     if (await Permission.bluetoothScan.request().isGranted &&
-        await Permission.bluetoothConnect.request().isGranted) {
+        await Permission.bluetoothConnect.request().isGranted &&
+        await Permission.notification.request().isGranted) {
       return true;
     }
     return false;

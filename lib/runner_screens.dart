@@ -121,6 +121,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   Widget _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
   String _timerText = 'Start';
   DateTime? _startTime;
+  final service = FlutterBackgroundService();
+  Map<String, List<double>> toStore = {};
 
   Future<void> _countdown() async{
     if (!mounted) return;
@@ -162,17 +164,15 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       await _countdown();
       _setToStop();
 
-      final service = FlutterBackgroundService();
       await service.startService();
       
       _startTimer(0);
+
     } else {
 
       Logger().i('Button color changed to green');
       final service = FlutterBackgroundService();
       service.invoke('stopService');
-
-      SaveFileHandler('test', 1234);
       setState((){
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
         _buttonColor = Colors.green;
@@ -180,6 +180,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       stopTimer();
     }
     _isCountingDown = false;
+
+    await Future.delayed(const Duration(milliseconds: 100));
+    SaveFileHandler fileHandler = SaveFileHandler('test', 1234);
   }
 
   void _startTimer(int alreadyStarted) async{
@@ -244,6 +247,18 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   @override
   void initState() {
     super.initState();
+    service.on('stopServiceResult').listen((data) {
+      if (!mounted) return;
+      if (data != null) {
+        final rawMap = (data['namedVectors'] as Map<String, dynamic>);
+        toStore = rawMap.map((key, value) => MapEntry(
+              key,
+              (value as List).map((e) => (e as num).toDouble()).toList()
+            ));
+        Logger().i('Received vectors: $toStore');
+          // Process vectors as needed...
+      }
+    });
     _checkTimer();
   }
 
