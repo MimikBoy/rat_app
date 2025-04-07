@@ -160,7 +160,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     });
   }
 
-  void _changeColor()  async{
+  void _startStopButton()  async{
     if (_buttonColor == Colors.green) {
       Logger().i('Button color changed to red');
       await service.startService();
@@ -279,7 +279,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
               ? null
               : () {
                 Logger().i('Start button pressed');
-                _changeColor();
+                _startStopButton();
               },
               style: ElevatedButton.styleFrom(
                 shape: const CircleBorder(),
@@ -349,6 +349,62 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
     }
   }
 
+  void _deleteFile(String fileName, int index) async {
+    bool? confirmed = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: Text('Are you sure you want to delete "$fileName"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed != true) return;
+
+    try {
+      SaveFileHandler fileManager = SaveFileHandler(fileName, 0);
+      await fileManager.delete();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File deleted'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      Logger().e('Error deleting file: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to delete file: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> currentListTemp = prefs.getStringList('fileNames') ?? [];
+    currentListTemp.removeAt(index);
+    await prefs.setStringList('fileNames', currentListTemp);
+
+    setState(() {
+      currentList.removeAt(index);
+      itemCount = currentList.length;
+    });
+
+  }
+
   @override
   void initState(){
     super.initState();
@@ -387,7 +443,9 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
                     color: Colors.green,
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _deleteFile(currentList[itemCount - index - 1], itemCount - index - 1);
+                    },
                     icon: Icon(Icons.delete_rounded),
                     color: Colors.red,
                   ),

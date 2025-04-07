@@ -23,6 +23,17 @@ class SaveFileHandler {
     Logger().i('File saved: ${file.path}');
   }
 
+  Future<void> delete() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$fileName.pokko');
+    if (await file.exists()) {
+      await file.delete();
+      Logger().i('File deleted: ${file.path}');
+    } else {
+      Logger().e('File does not exist: ${file.path}');
+    }
+  }
+
   String encryptData(String jsonData){
     String paddedKey = trainerID.toString().padLeft(16, '0');
 

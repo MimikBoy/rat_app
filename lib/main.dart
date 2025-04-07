@@ -8,12 +8,11 @@ import 'runner_screens.dart';
 import 'bluetooth.dart';
 
 void main() async {
-  // Checking if there is something stored in shared preferences.
-  // WidgetsFlutterBinding.ensureInitialized();
-  // final prefs = await SharedPreferences.getInstance();
-  // int storedWeight = prefs.getInt('weight') ?? -1;
-  // Logger().i('Stored weight: $storedWeight');
   WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('firstStartServiceIgnored', false);
+
   BluetoothManager btManager = BluetoothManager();
   btManager.initializeBluetooth();
   await initializeService(btManager);
