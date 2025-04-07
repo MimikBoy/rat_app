@@ -251,12 +251,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       if (!mounted) return;
       if (data != null) {
         final rawMap = (data['namedVectors'] as Map<String, dynamic>);
-        toStore = rawMap.map((key, value) => MapEntry(
-              key,
-              (value as List).map((e) => (e as num).toDouble()).toList()
-            ));
+        toStore = rawMap.cast<String, List<double>>();
         Logger().i('Received vectors: $toStore');
-          // Process vectors as needed...
       }
     });
     _checkTimer();

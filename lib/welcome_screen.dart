@@ -114,7 +114,7 @@ final void Function(int) onContinue;
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Right button action
+                      // Fokko put your trainer screen data input screen here.
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,

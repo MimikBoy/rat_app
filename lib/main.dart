@@ -79,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return RunnerPageManager(btManager: btManager);
       case 1:
       // Show the TrainerHomePage.
+      // Fokko: Put your Trainer main page here.
       default:
       Logger().e('Invalid index: $startScreen');
       return WelcomeScreen(onContinue: _changeScreen,);
