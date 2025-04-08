@@ -5,25 +5,25 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'dart:typed_data';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SaveFileHandler {
-  String fileName;
-  int trainerID;
+
   Map<String, dynamic> data;
 
-  SaveFileHandler(this.fileName, this.trainerID) : data = {};
+  SaveFileHandler() : data = {};
 
-  Future<void> saveData() async {
+  Future<void> saveData(String fileName, int trainerID) async {
     // Logic to save the file
     String jsonString = jsonEncode(data);
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/$fileName.pokko');
-    String encryptedData = "decrypted\n${encryptData(jsonString)}";
+    String encryptedData = "decrypted\n${encryptData(jsonString, trainerID)}";
     await file.writeAsString(encryptedData);
     Logger().i('File saved: ${file.path}');
   }
 
-  Future<void> delete() async {
+  Future<void> delete(String fileName) async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/$fileName.pokko');
     if (await file.exists()) {
@@ -34,7 +34,7 @@ class SaveFileHandler {
     }
   }
 
-  String encryptData(String jsonData){
+  String encryptData(String jsonData, int trainerID) {
     String paddedKey = trainerID.toString().padLeft(16, '0');
 
     final key = encrypt.Key.fromUtf8(paddedKey);
@@ -47,7 +47,7 @@ class SaveFileHandler {
     return encrypted.base64;
   }
 
-  Future<void> download() async {
+  Future<void> download(String fileName) async {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/$fileName.pokko');
       
@@ -96,4 +96,26 @@ class SaveFileHandler {
         throw UnsupportedError("Platform not supported.");
       }
   }
+
+  Future<void> clearLocalData() async {
+  // Clear SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  Logger().i("SharedPreferences cleared.");
+  
+  // Get the app's local directory
+  final dir = await getApplicationDocumentsDirectory();
+  
+  // Delete all files and folders inside the directory
+  final files = dir.listSync();
+  for (final fileOrDir in files) {
+    try {
+      await fileOrDir.delete(recursive: true);
+      Logger().i("Deleted: ${fileOrDir.path}");
+    } catch (e) {
+      Logger().e("Error deleting ${fileOrDir.path}: $e");
+    }
+  }
+  Logger().i("All local files cleared.");
+}
 }

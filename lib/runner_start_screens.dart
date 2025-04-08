@@ -48,6 +48,7 @@ class _DataScreenState extends State<DataScreen> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context){
 
     bool weightError = showError && _weightController.text.isEmpty;

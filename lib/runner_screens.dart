@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:flutter/services.dart';
 import 'package:rat_app/background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -22,6 +23,12 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
   Color leftBatteryColor = Colors.grey;
   Color rightBatteryColor = Colors.grey;
   String appBarTitle = 'Home';
+  IconButton leadingIcon = IconButton(
+          icon: const Icon(Icons.circle_outlined, size: 30),
+          onPressed: () {
+            Logger().i('Profile button pressed');
+          },
+        );
 
   Future<void> handleBatteryButtonPress() async {
     Logger().i('Battery button pressed');
@@ -36,18 +43,73 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     });
   }
 
+  void _changeSettingsScreen(int index) {
+    setState(() {
+      screenIndex = index;
+      if (index == 3) {
+        appBarTitle = 'Parameters';
+      } else if (index == 4) {
+        appBarTitle = 'About';
+      }
+      leadingIcon = IconButton(
+        icon: const Icon(Icons.arrow_back_ios_rounded, size: 30),
+        onPressed: () {
+          setState(() {
+            screenIndex = 2;
+            appBarTitle = 'Settings';
+            leadingIcon = IconButton(
+              icon: const Icon(Icons.circle_outlined, size: 30),
+              onPressed: () {
+                Logger().i('Profile button pressed');
+              },
+            );
+          });
+          Logger().i('Back button pressed');
+        },
+      );
+
+    });
+  }
+
   @override
   Widget build(BuildContext context){
     Widget page;
     switch (screenIndex) {
       case 0:
         page = const RunnerHomePage();
+        setState(() {
+            leadingIcon = IconButton(
+              icon: const Icon(Icons.circle_outlined, size: 30),
+              onPressed: () {
+                Logger().i('Profile button pressed');
+              },
+            );
+          });
         break;
       case 1:
         page = const RunnerDownloadPage();
+        setState(() {
+            leadingIcon = IconButton(
+              icon: const Icon(Icons.circle_outlined, size: 30),
+              onPressed: () {
+                Logger().i('Profile button pressed');
+              },
+            );
+          });
         break;
       case 2:
-        page = Placeholder();
+        page = RunnerSettingsPage(changeSettingScreen: _changeSettingsScreen,);
+        setState(() {
+            leadingIcon = IconButton(
+              icon: const Icon(Icons.circle_outlined, size: 30),
+              onPressed: () {
+                Logger().i('Profile button pressed');
+              },
+            );
+          });
+        break;
+      case 3:
+        page = const EditParametersPage();
         break;
       default:
         page = const RunnerHomePage();
@@ -57,12 +119,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(appBarTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.circle_outlined, size: 30),
-          onPressed: () {
-            Logger().i('Profile button pressed');
-          },
-        ),
+        leading: leadingIcon,
         actions: [
           IconButton(
             icon: Row(
@@ -94,7 +151,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
             label: 'Settings',
           ),
         ],
-        currentIndex: screenIndex,
+        currentIndex: screenIndex > 2 ? 2 : screenIndex,
         onTap: (index) {
           setState(() {
             screenIndex = index;
@@ -216,9 +273,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     await prefs.setStringList('fileNames', currentList);
 
     int trainerID = prefs.getInt('trainerID') ?? 0;
-    SaveFileHandler fileHandler = SaveFileHandler(_startTime.toString().substring(0, _startTime.toString().length - 4), trainerID);
+    SaveFileHandler fileHandler = SaveFileHandler();
     fileHandler.data = toStore;
-    await fileHandler.saveData();
+    await fileHandler.saveData(_startTime.toString().substring(0, _startTime.toString().length - 4), trainerID);
   }
 
   String _formatTime(Duration elapsed) {
@@ -328,8 +385,8 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
 
   void _moveToDownloads(String fileName) async {
     try{
-      SaveFileHandler fileManager = SaveFileHandler(fileName, 0);
-      await fileManager.download();
+      SaveFileHandler fileManager = SaveFileHandler();
+      await fileManager.download(fileName);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -373,8 +430,8 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
   if (confirmed != true) return;
 
     try {
-      SaveFileHandler fileManager = SaveFileHandler(fileName, 0);
-      await fileManager.delete();
+      SaveFileHandler fileManager = SaveFileHandler();
+      await fileManager.delete(fileName);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -455,6 +512,325 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class RunnerSettingsPage extends StatefulWidget {
+  final Function(int)? changeSettingScreen;
+  const RunnerSettingsPage({super.key, this.changeSettingScreen});
+
+  @override
+  State<RunnerSettingsPage> createState() => _RunnerSettingsPageState();
+}
+
+
+class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
+  int itemCount = 0;
+  List<String> currentList = [
+    'Runner ID: ',
+    'Edit Paramaters',
+    'About',
+  ];
+
+  @override
+  void initState(){
+    super.initState();
+    setState(() {
+      itemCount = currentList.length + 1;
+      currentList[0] = 'Runner ID: 0';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      physics: const BouncingScrollPhysics(),
+      itemCount: itemCount,
+      separatorBuilder: (context, index) => const Divider(
+        color: Colors.black,
+        thickness: 1,
+      ),
+      itemBuilder: (context, index) {
+        if (index == 0){
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              currentList[index],
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+            )
+          );
+        } else if (index < itemCount-1) {
+          return InkWell(
+            onTap: () {
+              if (index == 1) {
+                if (widget.changeSettingScreen != null) {
+                  widget.changeSettingScreen!(3); // Navigate to Edit Parameters page
+                } else {
+                  Logger().e('changeSettingScreen is null');
+                }
+                Logger().i('Edit Parameters button pressed');
+              } else if (index == 2) {
+                Logger().i('About button pressed');
+                if (widget.changeSettingScreen != null) {
+                  widget.changeSettingScreen!(4); // Navigate to Edit Parameters page
+                } else {
+                  Logger().e('changeSettingScreen is null');
+                }
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                // Instead of extra margin, only use internal padding.
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      currentList[index],
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 20,
+                      color: Colors.grey[600],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: ElevatedButton(
+              onPressed: () {
+                Logger().i('Cleared all local data');
+                SaveFileHandler().clearLocalData();
+                
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                fixedSize: const Size(double.infinity, 60),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4), // Reduced rounding
+                ),
+              ),
+              child: const Text(
+                'Clear Local Data',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+// Field Decoration for integer input fields
+InputDecoration fieldDecoration(String hintText, String suffixText, bool showFieldError) {
+  return InputDecoration(
+    hintText: hintText,
+    suffixText: suffixText,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
+    border: const OutlineInputBorder(),
+    errorText: showFieldError ? 'Please enter a valid number' : null,
+  );
+}
+class EditParametersPage extends StatefulWidget {
+  const EditParametersPage({super.key});
+
+  @override
+  State<EditParametersPage> createState() => _EditParametersPageState();
+}
+
+class _EditParametersPageState extends State<EditParametersPage> {
+
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _imuToKneeController = TextEditingController();
+  final TextEditingController _kneeToHipController = TextEditingController();
+  final TextEditingController _trainerIDController = TextEditingController();
+
+  bool showError = false;
+
+  bool get formValid =>
+    _weightController.text.isNotEmpty &&
+    _imuToKneeController.text.isNotEmpty &&
+    _kneeToHipController.text.isNotEmpty &&
+    _trainerIDController.text.isNotEmpty;
+  
+
+  @override
+
+  void dispose() {
+    _weightController.dispose();
+    _imuToKneeController.dispose();
+    _kneeToHipController.dispose();
+    _trainerIDController.dispose();
+    super.dispose();
+  }
+
+  String weightHintText = '';
+  String imuToKneeHintText = '';
+  String kneeToHipHintText = '';
+  String trainerIDHintText = '';
+
+  void _loadSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    weightHintText = prefs.getInt('weight')?.toString() ?? 'Enter your weight';
+    imuToKneeHintText = prefs.getInt('imuToKnee')?.toString() ?? 'IMU to Knee Length';
+    kneeToHipHintText = prefs.getInt('kneeToHip')?.toString() ?? 'Knee to Hip Length';
+    trainerIDHintText = prefs.getInt('trainerID')?.toString() ?? 'Trainer ID';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSharedPreferences();
+  }
+
+  @override
+  Widget build(BuildContext context){
+
+    bool weightError = showError && _weightController.text.isEmpty;
+    bool imuToKneeError = showError && _imuToKneeController.text.isEmpty;
+    bool kneeToHipError = showError && _kneeToHipController.text.isEmpty;
+    bool trainerIDError = showError && _trainerIDController.text.isEmpty;
+
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: Text(
+              'Change Parameters',
+              style: TextStyle(fontSize: 32.0),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 15.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: Text('Weight: ')
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _weightController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: fieldDecoration(weightHintText, "kg", weightError),
+                    onChanged: (_){
+                      setState(() {});
+                    },
+                  )
+                ),
+                
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 15.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: Text('IMU to Knee: ')
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _imuToKneeController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: fieldDecoration(imuToKneeHintText, "cm", imuToKneeError),
+                    onChanged: (_){
+                      setState(() {});
+                    },
+                  )
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 15.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: Text('Knee to Hip: ')
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _kneeToHipController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: fieldDecoration(kneeToHipHintText, "cm", kneeToHipError),
+                    onChanged: (_){
+                      setState(() {});
+                    },
+                  )
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 15.0, left: 15.0, bottom: 15.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: Text('Trainer ID: ')
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _trainerIDController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: fieldDecoration(trainerIDHintText, "", trainerIDError),
+                    onChanged: (_){
+                      setState(() {});
+                    },
+                  )
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: formValid
+                ? () async {
+                  if (!mounted) return;
+                  Navigator.pop(context);
+                  Logger().i('Continue button pressed');  
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setInt('weight', int.parse(_weightController.text));
+                  prefs.setInt('imuToKnee', int.parse(_imuToKneeController.text));
+                  prefs.setInt('kneeToHip', int.parse(_kneeToHipController.text));
+                  prefs.setInt('trainerID', int.parse(_trainerIDController.text));
+                }
+                : () {
+                  setState(() {
+                    showError = true;
+                  });
+                },
+                child: Text('Save'),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
