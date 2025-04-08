@@ -630,7 +630,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
               onPressed: () {
                 Logger().i('Cleared all local data');
                 SaveFileHandler().clearLocalData();
-                
+                SystemNavigator.pop();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -839,6 +839,7 @@ class _EditParametersPageState extends State<EditParametersPage> {
                   prefs.setInt('imuToKnee', int.parse(_imuToKneeController.text));
                   prefs.setInt('kneeToHip', int.parse(_kneeToHipController.text));
                   prefs.setInt('trainerID', int.parse(_trainerIDController.text));
+                  
                 }
                 : () {
                   setState(() {
