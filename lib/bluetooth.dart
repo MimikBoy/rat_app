@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:typed_data';
 
 final Logger logger = Logger();
@@ -75,7 +76,7 @@ class BluetoothManager {
     
     bool permissionsGranted = await requestBluetoothPermissions();
     if (permissionsGranted) {
-      await connectToDevices();
+      logger.i("Bluetooth permissions granted.");
     } else {
       logger.e("Bluetooth permissions not granted.");
     }
@@ -109,7 +110,7 @@ class BluetoothManager {
 
     if (deviceLeft.address.isEmpty) {
       logger.e("Left not found! Make sure it's paired.");
-      return 0;
+      return 2;
     } else if (deviceRight.address.isEmpty) {
       logger.e("Right not found! Make sure it's paired.");
       return 1;
@@ -118,7 +119,7 @@ class BluetoothManager {
     try {
       connectionLeft = await BluetoothConnection.toAddress(deviceLeft.address);
       logger.i('Connected to ${deviceLeft.name}');
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(Duration(seconds: 1));
       connectionStatus += 1;
     } catch (error) {
       logger.e('Error connecting to LEFT: $error');
@@ -132,6 +133,10 @@ class BluetoothManager {
       logger.e('Error connecting to RIGHT: $error');
     }
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('deviceLeftAddress', deviceLeft.address);
+    await prefs.setString('deviceRightAddress', deviceRight.address);
+
     return connectionStatus;
   }
 }
@@ -140,7 +145,7 @@ class BluetoothSetupPage extends StatefulWidget {
   const BluetoothSetupPage({super.key});
 
   @override
-  _BluetoothSetupPageState createState() => _BluetoothSetupPageState();
+  State<BluetoothSetupPage> createState() => _BluetoothSetupPageState();
 }
 
 class _BluetoothSetupPageState extends State<BluetoothSetupPage> {

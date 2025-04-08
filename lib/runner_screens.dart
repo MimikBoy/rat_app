@@ -9,8 +9,7 @@ import 'file_management.dart';
 import 'bluetooth.dart';
 
 class RunnerPageManager extends StatefulWidget{
-  final BluetoothManager btManager;
-  const RunnerPageManager({super.key, required this.btManager});
+  const RunnerPageManager({super.key});
 
   @override
   State<RunnerPageManager> createState() => _RunnerPageManagerState();
@@ -23,6 +22,8 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
   Color leftBatteryColor = Colors.grey;
   Color rightBatteryColor = Colors.grey;
   String appBarTitle = 'Home';
+
+
   IconButton leadingIcon = IconButton(
           icon: const Icon(Icons.circle_outlined, size: 30),
           onPressed: () {
@@ -31,8 +32,20 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         );
 
   Future<void> handleBatteryButtonPress() async {
+    
     Logger().i('Battery button pressed');
+    BluetoothManager btManager = BluetoothManager();
     int connectionStatus = await btManager.connectToDevices();
+    
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? deviceLeftAddress = prefs.getString('deviceLeftAddress');
+    String? deviceRightAddress = prefs.getString('deviceRightAddress');
+
+    final service = FlutterBackgroundService();
+    service.invoke('initializeBluetooth', {
+      'deviceLeftAddress': deviceLeftAddress,
+      'deviceRightAddress': deviceRightAddress,
+    });
 
     setState(() {
       // Update icon colors based on the connection status
@@ -76,7 +89,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     Widget page;
     switch (screenIndex) {
       case 0:
-        page = const RunnerHomePage();
+        page = RunnerHomePage();
         setState(() {
             leadingIcon = IconButton(
               icon: const Icon(Icons.circle_outlined, size: 30),
@@ -112,7 +125,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = const EditParametersPage();
         break;
       default:
-        page = const RunnerHomePage();
+        page = RunnerHomePage();
     }
 
     return Scaffold(
@@ -220,14 +233,13 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void _startStopButton()  async{
     if (_buttonColor == Colors.green) {
       Logger().i('Button color changed to red');
-      await service.startService();
+      service.invoke('startService');
       await _countdown();
       _setToStop();
       _startTimer(0);
     } else {
 
       Logger().i('Button color changed to green');
-      final service = FlutterBackgroundService();
       service.invoke('stopService');
       setState((){
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
@@ -319,6 +331,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
         Logger().i('Received vectors: $toStore');
       }
     });
+    BluetoothManager btManager = BluetoothManager();
+    btManager.receiveData();
     _checkTimer();
   }
 

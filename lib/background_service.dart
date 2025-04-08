@@ -7,20 +7,17 @@ import 'package:logger/web.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:logger/logger.dart';
 import 'bluetooth.dart';
-
-BluetoothManager btManager = BluetoothManager();
-bool firstStartServiceIgnored = false;
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 
-Future<void> initializeService(BluetoothManager blueManager) async {
+Future<void> initializeService() async {
   final service = FlutterBackgroundService();
-  btManager = blueManager;
   // Set configuration (for Android)
   await service.configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart, // The callback to handle background tasks
       isForegroundMode: true, // must be true to keep service running
-      autoStart: false,
+      autoStart: true,
       // Notification shows in the status bar
       notificationChannelId: 'my_foreground',
       initialNotificationTitle: 'Foreground Service',
@@ -47,13 +44,8 @@ void onStart(ServiceInstance service) async {
     }
   }
 
-  final prefs = await SharedPreferences.getInstance();
-  bool firstStartIgnored = prefs.getBool('firstStartServiceIgnored') ?? false;
-  if (!firstStartIgnored) {
-    await prefs.setBool('firstStartServiceIgnored', true);
-    await service.stopSelf();
-    return; // Stop further execution on first start.
-  }
+  BluetoothManager btManager = BluetoothManager(); // Initialize Bluetooth connection
+  
 
   Logger().i('Background service started');
 
@@ -69,6 +61,25 @@ void onStart(ServiceInstance service) async {
       angleTimeRight = ['28', '29', '30'],
       batteryLeft = ['31', '32', '33'],
       batteryRight = ['34', '35', '36'];
+
+  service.on('initializeBluetooth').listen((event) async {
+    logger.i('Initializing Bluetooth in the background with data: $event');
+
+    if (event != null) {
+      String? deviceLeftAddress = event['deviceLeftAddress'];
+      String? deviceRightAddress = event['deviceRightAddress'];
+
+      if (deviceLeftAddress != null && deviceLeftAddress.isNotEmpty) {
+        btManager.connectionLeft = await BluetoothConnection.toAddress(deviceLeftAddress);
+        logger.i('Connected to LEFT device in the background');
+      }
+
+      if (deviceRightAddress != null && deviceRightAddress.isNotEmpty) {
+        btManager.connectionRight = await BluetoothConnection.toAddress(deviceRightAddress);
+        logger.i('Connected to RIGHT device in the background');
+      }
+    }
+  });
 
   service.on('stopService').listen((event) async {
 
@@ -103,21 +114,34 @@ void onStart(ServiceInstance service) async {
       Logger().w('stopService command is not implemented for non-Android services.');
     }
   });
+  
+  service.on('startService').listen((event) {
+    // Ensure btManager is passed as part of the event
+    Logger().i('startService command received.');
 
-  btManager.leftDataStream.listen((data) {
-      //JOAS PUT STUFF IN HERE
+    String recievedDataL = 'No data';
+    String recievedDataR = 'No data';
+
+    btManager.leftDataStream.listen((data) {
+      recievedDataL = data;
+      Logger().i('Left data: $data');
+    });
+
+    btManager.rightDataStream.listen((data) {
+      recievedDataR = data;
+      Logger().i('Right data: $data');
+    });
+
+    btManager.sendData('start');
+    Logger().i('started?');
   });
-
-  btManager.rightDataStream.listen((data) {
-      //JOAS PUT STUFF IN HERE
-  });
-
-  btManager.receiveData();
+ 
 
   Timer.periodic(const Duration(seconds: 2), (timer) async {
-    Logger().i('Current time: ${DateTime.now()}');
+    //Logger().i('Current time: ${DateTime.now()}');
+    //Logger().i('Left data: $recievedDataL');
+    //Logger().i('Right data: $recievedDataR');
 
-    
     if (service is AndroidServiceInstance) {
       if (!(await service.isForegroundService())) {
         timer.cancel();

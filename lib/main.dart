@@ -9,19 +9,17 @@ import 'bluetooth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('firstStartServiceIgnored', false);
-
   BluetoothManager btManager = BluetoothManager();
-  btManager.initializeBluetooth();
-  await initializeService(btManager);
-
-  final status = await Permission.manageExternalStorage.request();
+  await btManager.initializeBluetooth(); 
+  btManager.receiveData();
+  // Initialize Bluetooth connection
+  await initializeService();
+  final status = await Permission.manageExternalStorage.status;
   if (status.isPermanentlyDenied) {
     await openAppSettings(); 
   }else if (!status.isGranted) {
     Logger().e('Storage permission not granted');
+    await openAppSettings(); 
   }
 
   runApp(const MyApp());
@@ -37,7 +35,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 241, 121, 15)),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -84,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return WelcomeScreen(onContinue: _changeScreen,);
       case 0:
       // Show the RunnerHomePage.
-      return RunnerPageManager(btManager: btManager);
+      return RunnerPageManager();
       case 1:
       // Show the TrainerHomePage.
       // Fokko: Put your Trainer main page here.
