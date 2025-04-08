@@ -40,20 +40,26 @@ class WelcomeScreen extends StatelessWidget {
                   ),
             ),
           ),
-          SafeArea(
-            child: 
-            ElevatedButton(
-              onPressed: () {
-              Logger().i('Continue button pressed');  
-                Navigator.push(
-                  context,
-                  pageTransSwipeLeft(WhatAreYou(onContinue: onContinue,)),
-                );
-              },
-              // style: ElevatedButton.styleFrom(
-              //   padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
-              // ),
-              child: Text('Continue'),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SafeArea(
+              child: 
+              ElevatedButton(
+                onPressed: () {
+                Logger().i('Continue button pressed');  
+                  Navigator.push(
+                    context,
+                    pageTransSwipeLeft(WhatAreYou(onContinue: onContinue,)),
+                  );
+                },
+                // style: ElevatedButton.styleFrom(
+                //   padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+                // ),
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size(200, 60), // adjust width and height as needed
+                ),
+                child: Text('Continue', style: TextStyle(fontSize: 16.0, fontFamily: 'Roboto')),
+              ),
             ),
           )  
         ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'runner_screens.dart';
 import 'bluetooth.dart';
 import 'trainer_screens.dart';
@@ -15,16 +15,7 @@ void main() async {
   BluetoothManager btManager = BluetoothManager();
   await btManager.initializeBluetooth(); 
   // Initialize Bluetooth connection
-  final status = await Permission.manageExternalStorage.status;
-  if (status.isPermanentlyDenied) {
-    await openAppSettings(); 
-  }else if (!status.isGranted) {
-    Logger().e('Storage permission not granted');
-    await openAppSettings(); 
-  }
-
-
-  runApp(const MyApp());
+  runApp(Phoenix(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -35,7 +26,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 241, 121, 15)),
+        scaffoldBackgroundColor: Color.fromARGB(255, 33, 33, 33),
+        splashColor: const Color.fromARGB(44, 58, 69, 108),     // Custom splash (ripple) color.
+        highlightColor: const Color.fromARGB(44, 58, 69, 108),
+         appBarTheme: AppBarTheme(
+          backgroundColor: Color.fromARGB(255, 33, 33, 33), // Slightly lighter grey
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Colors.black, // Slightly lighter grey
+          selectedItemColor: Color.fromARGB(255, 100, 181, 246),
+          unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
+        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 9, 52, 211)),
+        textTheme: ThemeData.dark().textTheme.apply(
+          bodyColor: Color.fromARGB(255, 238, 238, 238),
+          displayColor: Color.fromARGB(255, 238, 238, 238),
+        ),
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );

@@ -32,6 +32,7 @@ class _DataScreenState extends State<DataScreen> {
   final TextEditingController _trainerIDController = TextEditingController();
 
   bool showError = false;
+  bool showErrorSkip = false;
 
   bool get formValid =>
     _weightController.text.isNotEmpty &&
@@ -56,7 +57,7 @@ class _DataScreenState extends State<DataScreen> {
     bool weightError = showError && _weightController.text.isEmpty;
     bool imuToKneeError = showError && _imuToKneeController.text.isEmpty;
     bool kneeToHipError = showError && _kneeToHipController.text.isEmpty;
-    bool trainerIDError = showError && _trainerIDController.text.isEmpty;
+    bool trainerIDError = (showError && _trainerIDController.text.isEmpty) || (showErrorSkip && _trainerIDController.text.isEmpty);
 
     return Scaffold(
       appBar: AppBar(
@@ -177,27 +178,65 @@ class _DataScreenState extends State<DataScreen> {
             ),
           ),
           const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: TextButton(
+              onPressed: _trainerIDController.text.isNotEmpty
+                ? () async {
+                  Logger().i('Continue button pressed');
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setInt('weight', 76);
+                  prefs.setInt('imuToKnee', 41);
+                  prefs.setInt('kneeToHip', 56);
+                  prefs.setInt('trainerID', int.parse(_trainerIDController.text));
+                  prefs.setInt('mode', 0);
+                  widget.onContinue(0);
+                  prefs.setInt('runnerID', Random().nextInt(10000000));
+                }
+                : () {
+                  setState(() {
+                    showErrorSkip = true;
+                  });
+                },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size(0, 0),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                foregroundColor: Theme.of(context).primaryColor, // Set text color
+              ),
+              child: const Text(
+                'Skip',
+                style: TextStyle(
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+          ),
           SafeArea(
-            child: ElevatedButton(
-              onPressed: formValid
-              ? () async {
-                Logger().i('Continue button pressed');  
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setInt('weight', int.parse(_weightController.text));
-                prefs.setInt('imuToKnee', int.parse(_imuToKneeController.text));
-                prefs.setInt('kneeToHip', int.parse(_kneeToHipController.text));
-                prefs.setInt('trainerID', int.parse(_trainerIDController.text));
-                prefs.setInt('mode', 0);
-                widget.onContinue(0);
-                prefs.setInt('runnerID', Random().nextInt(10000000));
-                Navigator.popUntil(context, (route) => route.isFirst);
-              }
-              : () {
-                setState(() {
-                  showError = true;
-                });
-              },
-              child: Text('Continue'),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ElevatedButton(
+                onPressed: formValid
+                ? () async {
+                  Logger().i('Continue button pressed');  
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setInt('weight', int.parse(_weightController.text));
+                  prefs.setInt('imuToKnee', int.parse(_imuToKneeController.text));
+                  prefs.setInt('kneeToHip', int.parse(_kneeToHipController.text));
+                  prefs.setInt('trainerID', int.parse(_trainerIDController.text));
+                  prefs.setInt('mode', 0);
+                  widget.onContinue(0);
+                  prefs.setInt('runnerID', Random().nextInt(10000000));
+                }
+                : () {
+                  setState(() {
+                    showError = true;
+                  });
+                },
+                child: Text('Continue'),
+              ),
             ),
           )
         ],
