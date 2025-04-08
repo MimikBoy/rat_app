@@ -189,7 +189,7 @@ class _DataScreenState extends State<DataScreen> {
                 prefs.setInt('trainerID', int.parse(_trainerIDController.text));
                 prefs.setInt('mode', 0);
                 widget.onContinue(0);
-                prefs.setInt('RunnerID', Random().nextInt(10000000));
+                prefs.setInt('runnerID', Random().nextInt(10000000));
                 Navigator.popUntil(context, (route) => route.isFirst);
               }
               : () {

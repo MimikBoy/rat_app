@@ -547,18 +547,29 @@ class RunnerSettingsPage extends StatefulWidget {
 
 class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
   int itemCount = 0;
+  int runnerID = 0;
   List<String> currentList = [
     'Runner ID: ',
     'Edit Paramaters',
     'About',
   ];
 
+  Future<void> _loadSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    runnerID = prefs.getInt('runnerID') ?? 0;
+    setState(() {
+      currentList[0] = 'Runner ID: $runnerID';
+    });
+  }
+
   @override
   void initState(){
     super.initState();
+    _loadSharedPreferences();
+
     setState(() {
       itemCount = currentList.length + 1;
-      currentList[0] = 'Runner ID: 0';
+      currentList[0] = 'Runner ID: $runnerID';
     });
   }
 
