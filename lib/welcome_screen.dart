@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'runner_start_screens.dart';
+import 'trainer_start_screens.dart';
 
 // Used to create a page transition effect when navigating between screens.
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
@@ -121,6 +122,10 @@ final void Function(int) onContinue;
                   child: ElevatedButton(
                     onPressed: () {
                       // Fokko put your trainer screen data input screen here.
+                      Navigator.push(
+                        context, 
+                        pageTransSwipeLeft(TrainerDataScreen(onContinue: onContinue,)),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
