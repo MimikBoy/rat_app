@@ -3,9 +3,16 @@ import 'package:logger/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'dart:async';
 import 'file_management.dart';
 import 'bluetooth.dart';
+
+const Color textColor = Color.fromARGB(255, 224, 224, 224);
+const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
+const Color redButtons = Color.fromARGB(255, 211, 47, 47);
+const Color greenButtons = Color.fromARGB(255, 76, 175, 80);
+const Color greyButtons = Color.fromARGB(255, 158, 158, 158);
 
 class RunnerPageManager extends StatefulWidget{
   const RunnerPageManager({super.key});
@@ -18,13 +25,13 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
   int screenIndex = 0;
   IconData leftBatteryIcon = Icons.battery_unknown_rounded;
   IconData rightBatteryIcon = Icons.battery_unknown_rounded;
-  Color leftBatteryColor = Colors.grey;
-  Color rightBatteryColor = Colors.grey;
+  Color leftBatteryColor = Colors.white;
+  Color rightBatteryColor = Colors.white;
   String appBarTitle = 'Home';
 
 
   IconButton leadingIcon = IconButton(
-          icon: const Icon(Icons.circle_outlined, size: 30),
+          icon: const Icon(Icons.circle_outlined, size: 30, color: Colors.white),
           onPressed: () {
             Logger().i('Profile button pressed');
           },
@@ -55,9 +62,9 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
 
     setState(() {
       // Update icon colors based on the connection status
-      leftBatteryColor = (connectionStatus & 1) != 0 ? Colors.green : Colors.grey;
+      leftBatteryColor = (connectionStatus & 1) != 0 ? greenButtons : Colors.white;
       leftBatteryIcon = (connectionStatus & 1) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded;
-      rightBatteryColor = (connectionStatus & 2) != 0 ? Colors.green : Colors.grey;
+      rightBatteryColor = (connectionStatus & 2) != 0 ? greenButtons : Colors.white;
       rightBatteryIcon = (connectionStatus & 2) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded; // Right connected
     });
   }
@@ -71,13 +78,13 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         appBarTitle = 'About';
       }
       leadingIcon = IconButton(
-        icon: const Icon(Icons.arrow_back_ios_rounded, size: 30),
+        icon: const Icon(Icons.arrow_back_ios_rounded, size: 30, color:Colors.white),
         onPressed: () {
           setState(() {
             screenIndex = 2;
             appBarTitle = 'Settings';
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
+              icon: const Icon(Icons.circle_outlined, size: 30, color:Colors.white),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -98,7 +105,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = RunnerHomePage();
         setState(() {
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
+              icon: const Icon(Icons.circle_outlined, size: 30, color:Colors.white),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -109,7 +116,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = const RunnerDownloadPage();
         setState(() {
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
+              icon: const Icon(Icons.circle_outlined, size: 30, color:Colors.white),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -120,7 +127,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = RunnerSettingsPage(changeSettingScreen: _changeSettingsScreen,);
         setState(() {
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
+              icon: const Icon(Icons.circle_outlined, size: 30, color: Colors.white),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -137,7 +144,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(appBarTitle),
+        title: Text(appBarTitle, style: const TextStyle(fontSize: 19, color: Colors.white)),
         leading: leadingIcon,
         actions: [
           IconButton(
@@ -192,11 +199,13 @@ class RunnerHomePage extends StatefulWidget {
 
 class _RunnerHomePageState extends State<RunnerHomePage> {
 
-  Color _buttonColor = Colors.green;
+  Color defaultButtonColor = Color.fromARGB(255, 76, 175, 80);
+
+  Color _buttonColor = Color.fromARGB(255, 76, 175, 80);
   final timeToStart = 5;
   bool _isCountingDown = false;
   Timer? _timer;
-  Widget _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
+  Widget _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Color.fromARGB(255, 224, 224, 224));
   String _timerText = 'Start';
   DateTime? _startTime;
   final service = FlutterBackgroundService();
@@ -219,7 +228,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
             style: const TextStyle(
               fontSize: 50.0,
               fontFamily: 'Roboto',
-              color: Colors.white,
+              color: Color.fromARGB(255, 224, 224, 224),
             ),
           );
         });
@@ -231,13 +240,13 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void _setToStop(){
     if (!mounted) return;
     setState((){
-      _buttonChild = const Icon(Icons.stop_rounded, size: 100, color: Colors.white);
-      _buttonColor = Colors.red;
+      _buttonChild = const Icon(Icons.stop_rounded, size: 100, color: Color.fromARGB(255, 224, 224, 224));
+      _buttonColor = redButtons;
     });
   }
 
   void _startStopButton()  async{
-    if (_buttonColor == Colors.green) {
+    if (_buttonColor == defaultButtonColor) {
       Logger().i('Button color changed to red');
       BluetoothManager().sendData('start');
       await _countdown();
@@ -248,8 +257,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       Logger().i('Button color changed to green');
       BluetoothManager().sendData('stop');
       setState((){
-        _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
-        _buttonColor = Colors.green;
+        _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Color.fromARGB(255, 224, 224, 224));
+        _buttonColor = defaultButtonColor;
       });
       await Future.delayed(const Duration(milliseconds: 100));  
       stopTimer();
@@ -351,22 +360,35 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 50.0, bottom: 80.0),
-            child: ElevatedButton(
-              onPressed: _isCountingDown
-              ? null
-              : () {
-                Logger().i('Start button pressed');
-                _startStopButton();
-              },
-              style: ElevatedButton.styleFrom(
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(20.0),
-                backgroundColor: _buttonColor,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: _buttonColor,
-                fixedSize: const Size(250, 250),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromARGB(60, 0, 0, 0),
+                    blurRadius: 15,
+                    offset: Offset(0, 0),
+                  ),
+                ],
               ),
-              child: _buttonChild,
+              child: ElevatedButton(
+                onPressed: _isCountingDown
+                ? null
+                : () {
+                  Logger().i('Start button pressed');
+                  _startStopButton();
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(20.0),
+                  backgroundColor: _buttonColor,
+                  foregroundColor: Color.fromARGB(255, 224, 224, 224),
+                  disabledBackgroundColor: _buttonColor,
+                  fixedSize: const Size(250, 250),
+                  
+                ),
+                child: _buttonChild,
+              ),
             ),
           ),
           Text(
@@ -374,7 +396,6 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
             style: const TextStyle(
               fontSize: 30.0,
               fontFamily: 'Roboto',
-              color: Colors.black,
             ),
           ),
 
@@ -494,7 +515,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
       physics: const BouncingScrollPhysics(),
       itemCount: itemCount,
       separatorBuilder: (context, index) => const Divider(
-        color: Colors.black,
+        color: seperatorColor,
         thickness: 1,
       ),
       itemBuilder: (context, index) {
@@ -517,14 +538,14 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
                       _moveToDownloads(currentList[itemCount - index - 1]);
                     },
                     icon: Icon(Icons.download_rounded),
-                    color: Colors.green,
+                    color: greenButtons,
                   ),
                   IconButton(
                     onPressed: () {
                       _deleteFile(currentList[itemCount - index - 1], itemCount - index - 1);
                     },
                     icon: Icon(Icons.delete_rounded),
-                    color: Colors.red,
+                    color: redButtons,
                   ),
                 ],
               ),
@@ -579,7 +600,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
       physics: const BouncingScrollPhysics(),
       itemCount: itemCount,
       separatorBuilder: (context, index) => const Divider(
-        color: Colors.black,
+        color: seperatorColor,
         thickness: 1,
       ),
       itemBuilder: (context, index) {
@@ -641,11 +662,11 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
               onPressed: () {
                 Logger().i('Cleared all local data');
                 SaveFileHandler().clearLocalData();
-                SystemNavigator.pop();
+                Phoenix.rebirth(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 211, 47, 47),
+                foregroundColor: Color.fromARGB(255, 238, 238, 238),
                 fixedSize: const Size(double.infinity, 60),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4), // Reduced rounding
@@ -713,10 +734,12 @@ class _EditParametersPageState extends State<EditParametersPage> {
 
   void _loadSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    weightHintText = prefs.getInt('weight')?.toString() ?? 'Enter your weight';
-    imuToKneeHintText = prefs.getInt('imuToKnee')?.toString() ?? 'IMU to Knee Length';
-    kneeToHipHintText = prefs.getInt('kneeToHip')?.toString() ?? 'Knee to Hip Length';
-    trainerIDHintText = prefs.getInt('trainerID')?.toString() ?? 'Trainer ID';
+    setState(() {
+      weightHintText = prefs.getInt('weight')?.toString() ?? 'Enter your weight';
+      imuToKneeHintText = prefs.getInt('imuToKnee')?.toString() ?? 'IMU to Knee Length';
+      kneeToHipHintText = prefs.getInt('kneeToHip')?.toString() ?? 'Knee to Hip Length';
+      trainerIDHintText = prefs.getInt('trainerID')?.toString() ?? 'Trainer ID';
+    });
   }
 
   @override
