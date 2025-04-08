@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter/services.dart';
-import 'package:rat_app/background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:async';
@@ -36,8 +35,15 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     Logger().i('Battery button pressed');
     BluetoothManager btManager = BluetoothManager();
     int connectionStatus = await btManager.connectToDevices();
-    
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasBeenCalled = prefs.getBool('hasBeenCalled') ?? false;
+
+    if (!hasBeenCalled){
+      btManager.receiveData();
+      prefs.setBool('hasBeenCalled', true);
+    }
+
     String? deviceLeftAddress = prefs.getString('deviceLeftAddress');
     String? deviceRightAddress = prefs.getString('deviceRightAddress');
 
@@ -233,14 +239,14 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void _startStopButton()  async{
     if (_buttonColor == Colors.green) {
       Logger().i('Button color changed to red');
-      service.invoke('startService');
+      BluetoothManager().sendData('start');
       await _countdown();
       _setToStop();
       _startTimer(0);
     } else {
 
       Logger().i('Button color changed to green');
-      service.invoke('stopService');
+      BluetoothManager().sendData('stop');
       setState((){
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Colors.white);
         _buttonColor = Colors.green;
@@ -321,18 +327,18 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   @override
   void initState() {
     super.initState();
-    service.on('stopServiceResult').listen((data) {
-      if (!mounted) return;
-      if (data != null) {
-        final rawMap = (data['namedVectors'] as Map<String, dynamic>);
-        toStore = rawMap.map((key, value) {
-          return MapEntry(key, (value as List<dynamic>).map<double>((e) => e.toDouble()).toList());
-        });
-        Logger().i('Received vectors: $toStore');
-      }
-    });
     BluetoothManager btManager = BluetoothManager();
-    btManager.receiveData();
+
+    btManager.leftDataStream.listen((data) {
+      Logger().i('Left data: $data');
+    });
+
+    btManager.rightDataStream.listen((data) {
+      setState(() {
+        Logger().i('Right data: $data');
+      });
+    });
+
     _checkTimer();
   }
 

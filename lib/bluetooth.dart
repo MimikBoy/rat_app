@@ -4,7 +4,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:typed_data';
 
 final Logger logger = Logger();
@@ -76,7 +75,7 @@ class BluetoothManager {
     
     bool permissionsGranted = await requestBluetoothPermissions();
     if (permissionsGranted) {
-      logger.i("Bluetooth permissions granted.");
+      await connectToDevices();
     } else {
       logger.e("Bluetooth permissions not granted.");
     }
@@ -132,11 +131,7 @@ class BluetoothManager {
     } catch (error) {
       logger.e('Error connecting to RIGHT: $error');
     }
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('deviceLeftAddress', deviceLeft.address);
-    await prefs.setString('deviceRightAddress', deviceRight.address);
-
+    
     return connectionStatus;
   }
 }

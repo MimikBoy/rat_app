@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'background_service.dart';
 import 'welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,11 +8,12 @@ import 'bluetooth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setBool('hasBeenCalled', false);
   BluetoothManager btManager = BluetoothManager();
   await btManager.initializeBluetooth(); 
-  btManager.receiveData();
   // Initialize Bluetooth connection
-  await initializeService();
   final status = await Permission.manageExternalStorage.status;
   if (status.isPermanentlyDenied) {
     await openAppSettings(); 
@@ -21,6 +21,7 @@ void main() async {
     Logger().e('Storage permission not granted');
     await openAppSettings(); 
   }
+
 
   runApp(const MyApp());
 }
