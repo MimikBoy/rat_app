@@ -142,8 +142,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: AppBar(        
         title: Text(appBarTitle),
         leading: leadingIcon,
         actions: [

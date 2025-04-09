@@ -40,11 +40,10 @@ class WelcomeScreen extends StatelessWidget {
                   ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SafeArea(
-              child: 
-              ElevatedButton(
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
                 onPressed: () {
                 Logger().i('Continue button pressed');  
                   Navigator.push(
@@ -82,81 +81,76 @@ final void Function(int) onContinue;
             Logger().i('Back button pressed');  
           }, 
           icon: const Icon(Icons.arrow_back, color: Colors.white)
-          )
+          ),
+          title: Text('What are you???'),
       ),
-      body: Column(
-        mainAxisSize: MainAxisSize.min, // stretches children horizontally
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
-            child: Text(
-              'What are you???',
-              style: TextStyle(fontSize: 32.0),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 200,
-                  width: 300,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    elevation: 4.0,
-                    margin: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(10.0),
-                      onTap: () {
-                        Navigator.push(
-                          context, 
-                          pageTransSwipeLeft(DataScreen(onContinue: onContinue,)),
-                        );
-                      },
-                      child: Center(
-                        child: const Text(
-                          'Runner',
-                          style: TextStyle(fontSize: 20),
+      body: Center(
+        child: Transform.translate(
+          offset: Offset(0, -kToolbarHeight / 2),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 200,
+                width: 300,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  elevation: 4.0,
+                  margin: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10.0),
+                    onTap: () {
+                      Navigator.push(
+                        context, 
+                        pageTransSwipeLeft(DataScreen(onContinue: onContinue,)),
+                      );
+                    },
+                    child: Center(
+                      child: Text(
+                        'Runner',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 200,
-                  width: 300,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    elevation: 4.0,
-                    margin: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(10.0),
-                      onTap: () {
-                        Navigator.push(
-                          context, 
-                          pageTransSwipeLeft(TrainerDataScreen(onContinue: onContinue,)),
-                        );
-                      },
-                      child: Center(
-                        child: const Text(
-                          'Trainer',
-                          style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(
+                height: 200,
+                width: 300,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  elevation: 4.0,
+                  margin: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10.0),
+                    onTap: () {
+                      Navigator.push(
+                        context, 
+                        pageTransSwipeLeft(TrainerDataScreen(onContinue: onContinue,)),
+                      );
+                    },
+                    child: Center(
+                      child: Text(
+                        'Trainer',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

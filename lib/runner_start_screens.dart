@@ -66,7 +66,8 @@ class _DataScreenState extends State<DataScreen> {
             Navigator.pop(context);
             Logger().i('Back button pressed');
           }, 
-          icon: const Icon(Icons.arrow_back))
+          icon: const Icon(Icons.arrow_back)),
+        title: const Text('Give us your data!!!'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -74,16 +75,8 @@ class _DataScreenState extends State<DataScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 15.0),
             child: Text(
-              'Give us your data!!!',
-              style: TextStyle(fontSize: 32.0),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
-            child: Text(
               '(You can change this later)',
-              style: TextStyle(fontSize: 18.0),
+              style: TextStyle(fontSize: 15.0),
               textAlign: TextAlign.center,
             ),
           ),
@@ -203,7 +196,7 @@ class _DataScreenState extends State<DataScreen> {
                 padding: EdgeInsets.zero,
                 minimumSize: Size(0, 0),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                foregroundColor: Theme.of(context).primaryColor, // Set text color
+                foregroundColor: Theme.of(context).colorScheme.onPrimary, // Set text color
               ),
               child: const Text(
                 'Skip',
@@ -215,7 +208,7 @@ class _DataScreenState extends State<DataScreen> {
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                 onPressed: formValid
                 ? () async {

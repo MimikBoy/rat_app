@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
          appBarTheme: AppBarTheme(
           backgroundColor: Color.fromARGB(255, 33, 33, 33), // Slightly lighter grey
           iconTheme: IconThemeData(color: Colors.white),
+          centerTitle: true,
           titleTextStyle: TextStyle(
             color: Colors.white, // Set the title text color to white
             fontSize: 19, // Set the font size for the title
@@ -50,6 +51,9 @@ class MyApp extends StatelessWidget {
         textTheme: ThemeData.dark().textTheme.apply(
           bodyColor: Color.fromARGB(255, 238, 238, 238),
           displayColor: Color.fromARGB(255, 238, 238, 238),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Color.fromARGB(255, 158, 158, 158)),
         ),
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
