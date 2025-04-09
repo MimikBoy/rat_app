@@ -55,6 +55,11 @@ class MyApp extends StatelessWidget {
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Color.fromARGB(255, 158, 158, 158)),
         ),
+        dialogTheme: DialogTheme(
+          backgroundColor: Color.fromARGB(255, 33, 33, 33),
+          titleTextStyle: TextStyle(color: Colors.white),
+          contentTextStyle: TextStyle(color: Colors.white),
+        ),
       ),
       home: MyHomePage(title: 'RAT App Home Page'),
     );

@@ -60,6 +60,8 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
       'deviceRightAddress': deviceRightAddress,
     });
 
+    BluetoothManager().sendData('battery%');
+
     setState(() {
       // Update icon colors based on the connection status
       leftBatteryColor = (connectionStatus & 1) != 0 ? greenButtons : Colors.white;
@@ -247,7 +249,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void _startStopButton()  async{
     if (_buttonColor == defaultButtonColor) {
       Logger().i('Button color changed to red');
-      BluetoothManager().sendData('start');
+      BluetoothManager().sendData('start 57 82 218');
       await _countdown();
       _setToStop();
       _startTimer(0);
@@ -452,15 +454,21 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
     builder: (BuildContext context) {
       return AlertDialog(
         title: const Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete "$fileName"?'),
+        content: Text('Are you sure you want to delete "$fileName"?',),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color.fromARGB(255, 100, 181, 246)),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Color.fromARGB(255, 100, 181, 246)),
+            ),
           ),
         ],
       );

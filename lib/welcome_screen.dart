@@ -30,16 +30,20 @@ class WelcomeScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Expanded(
-            child: Center(
-              child: SizedBox(
-                    child: Text(
-                    'Welcome to the RAT!',
-                    style: TextStyle(fontSize: 32.0, fontFamily: 'Roboto'),
-                    )
-                  ),
+          const SizedBox(height: 100),
+          Image.asset(
+            'assets/rat_icon.png',
+            height: 200, // adjust as needed
+          ),
+          Center(
+            child: SizedBox(
+              child: Text(
+              'Welcome to the RAT!',
+              style: TextStyle(fontSize: 32.0, fontFamily: 'Roboto'),
+              )
             ),
           ),
+          const Spacer(),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

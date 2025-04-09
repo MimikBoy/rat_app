@@ -109,10 +109,10 @@ class BluetoothManager {
 
     if (deviceLeft.address.isEmpty) {
       logger.e("Left not found! Make sure it's paired.");
-      return 2;
+      return 0;
     } else if (deviceRight.address.isEmpty) {
       logger.e("Right not found! Make sure it's paired.");
-      return 1;
+      return 0;
     }
 
     try {
