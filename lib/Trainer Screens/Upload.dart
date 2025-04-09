@@ -1,25 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+const Color textColor = Color.fromARGB(255, 224, 224, 224);
+const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
+const Color redButtons = Color.fromARGB(255, 211, 47, 47);
+const Color greenButtons = Color.fromARGB(255, 76, 175, 80);
+const Color greyButtons = Color.fromARGB(255, 158, 158, 158);
 
 class UploadScreen extends StatefulWidget {
+  const UploadScreen({super.key});
+
   @override
   _UploadScreenState createState() => _UploadScreenState();
 }
 
+//TODO Decode uploaded file and show checkmark
+//TODO Put the data in prefs instead
 class _UploadScreenState extends State<UploadScreen> {
+  int? trainerID;
+
+  Future<void> _loadSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    trainerID = prefs.getInt('trainerID') ?? 0;
+    setState(() {
+      //fill in
+    });
+  }
+
+  // runs initially to set up the class/state
+  @override
+  void initState() {
+    super.initState();
+    _loadSharedPreferences();
+
+    setState(() {
+      //fill in
+    });
+  }
+
+
   List<PlatformFile> uploadedFiles = [];
 
+  // adds the file to the list of uploaded files
   Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+    );
 
-    if (result != null) {
+    if (result != null && result.count == 1 && isPokkoFile(result.names[0])) {
       setState(() {
         uploadedFiles.addAll(result.files);
       });
     } else {
       // User canceled the picker
     }
+  }
+
+  // checks if the file extension is a .pokko extension
+  bool isPokkoFile(String? filePath) {
+    return p.extension(filePath!).toLowerCase() == '.pokko';
   }
 
   @override
@@ -37,19 +79,25 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: uploadedFiles.isEmpty
-                  ? Text("No files uploaded yet.")
-                  : ListView.builder(
-                      itemCount: uploadedFiles.length,
-                      itemBuilder: (context, index) {
-                        final file = uploadedFiles[index];
-                        return ListTile(
-                          leading: Icon(Icons.insert_drive_file),
-                          title: Text(p.basename(file.name)),
-                          subtitle: Text('${(file.size / 1024).toStringAsFixed(2)} KB'),
-                        );
-                      },
-                    ),
+              child:
+                  uploadedFiles.isEmpty
+                      ? Text("No files uploaded yet.")
+                      : ListView.builder(
+                        itemCount: uploadedFiles.length,
+                        itemBuilder: (context, index) {
+                          final file = uploadedFiles[index];
+                          return ListTile(
+                            leading: Icon(Icons.insert_drive_file),
+                            title: Text(
+                              p.basename(file.name),
+                              style: TextStyle(color: textColor),
+                            ),
+                            subtitle: Text(
+                              '${(file.size / 1024).toStringAsFixed(2)} KB',
+                            ),
+                          );
+                        },
+                      ),
             ),
           ],
         ),
