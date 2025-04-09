@@ -79,12 +79,13 @@ final void Function(int) onContinue;
         leading:IconButton(
           onPressed: (){
             Navigator.pop(context);
-            Logger().i('Back button pressed');
+            Logger().i('Back button pressed');  
           }, 
-          icon: const Icon(Icons.arrow_back))
+          icon: const Icon(Icons.arrow_back, color: Colors.white)
+          )
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch, // stretches children horizontally
+        mainAxisSize: MainAxisSize.min, // stretches children horizontally
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 15.0),
@@ -95,47 +96,60 @@ final void Function(int) onContinue;
             ),
           ),
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch, // makes buttons fill vertical space
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context, 
-                        pageTransSwipeLeft(DataScreen(onContinue: onContinue,)),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                SizedBox(
+                  height: 200,
+                  width: 300,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Text('Runner'), 
-                      ],
+                    elevation: 4.0,
+                    margin: const EdgeInsets.all(8.0),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10.0),
+                      onTap: () {
+                        Navigator.push(
+                          context, 
+                          pageTransSwipeLeft(DataScreen(onContinue: onContinue,)),
+                        );
+                      },
+                      child: Center(
+                        child: const Text(
+                          'Runner',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Fokko put your trainer screen data input screen here.
-                      Navigator.push(
-                        context, 
-                        pageTransSwipeLeft(TrainerDataScreen(onContinue: onContinue,)),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                SizedBox(
+                  height: 200,
+                  width: 300,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Text('Trainer'), 
-                      ],
+                    elevation: 4.0,
+                    margin: const EdgeInsets.all(8.0),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10.0),
+                      onTap: () {
+                        Navigator.push(
+                          context, 
+                          pageTransSwipeLeft(TrainerDataScreen(onContinue: onContinue,)),
+                        );
+                      },
+                      child: Center(
+                        child: const Text(
+                          'Trainer',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
                     ),
                   ),
                 ),

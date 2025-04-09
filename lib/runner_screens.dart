@@ -31,7 +31,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
 
 
   IconButton leadingIcon = IconButton(
-          icon: const Icon(Icons.circle_outlined, size: 30, color: Colors.white),
+          icon: const Icon(Icons.circle_outlined, size: 30),
           onPressed: () {
             Logger().i('Profile button pressed');
           },
@@ -78,13 +78,13 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         appBarTitle = 'About';
       }
       leadingIcon = IconButton(
-        icon: const Icon(Icons.arrow_back_ios_rounded, size: 30, color:Colors.white),
+        icon: const Icon(Icons.arrow_back, size: 30),
         onPressed: () {
           setState(() {
             screenIndex = 2;
             appBarTitle = 'Settings';
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30, color:Colors.white),
+              icon: const Icon(Icons.circle_outlined, size: 30),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -105,7 +105,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = RunnerHomePage();
         setState(() {
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30, color:Colors.white),
+              icon: const Icon(Icons.circle_outlined, size: 30),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -116,7 +116,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = const RunnerDownloadPage();
         setState(() {
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30, color:Colors.white),
+              icon: const Icon(Icons.circle_outlined, size: 30),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -127,7 +127,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = RunnerSettingsPage(changeSettingScreen: _changeSettingsScreen,);
         setState(() {
             leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30, color: Colors.white),
+              icon: const Icon(Icons.circle_outlined, size: 30),
               onPressed: () {
                 Logger().i('Profile button pressed');
               },
@@ -144,7 +144,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(appBarTitle, style: const TextStyle(fontSize: 19, color: Colors.white)),
+        title: Text(appBarTitle),
         leading: leadingIcon,
         actions: [
           IconButton(

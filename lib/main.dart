@@ -30,11 +30,20 @@ class MyApp extends StatelessWidget {
         highlightColor: const Color.fromARGB(44, 58, 69, 108),
          appBarTheme: AppBarTheme(
           backgroundColor: Color.fromARGB(255, 33, 33, 33), // Slightly lighter grey
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+            color: Colors.white, // Set the title text color to white
+            fontSize: 19, // Set the font size for the title
+            fontWeight: FontWeight.bold, // Set the font weight for the title
+          ),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: Colors.black, // Slightly lighter grey
           selectedItemColor: Color.fromARGB(255, 100, 181, 246),
           unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white, // set your default icon color here
         ),
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 9, 52, 211)),
         textTheme: ThemeData.dark().textTheme.apply(
