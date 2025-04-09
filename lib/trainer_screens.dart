@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'file_management.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
@@ -59,7 +61,7 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
           });
         break;
       case 2:
-        page = Placeholder();
+        page = TrainerSettingsPage();
         setState(() {
             leadingIcon = IconButton(
               icon: const Icon(Icons.circle_outlined, size: 30),
@@ -108,6 +110,132 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
           Logger().i('Bottom navigation bar item $index pressed');
         },
       ),
+    );
+  }
+}
+
+class TrainerSettingsPage extends StatefulWidget {
+  final Function(int)? changeSettingScreen;
+  const TrainerSettingsPage({super.key, this.changeSettingScreen});
+
+  @override
+  State<TrainerSettingsPage> createState() => _TrainerSettingsPageState();
+}
+
+
+class _TrainerSettingsPageState extends State<TrainerSettingsPage> {
+  int itemCount = 0;
+  int trainerID = 0;
+  List<String> currentList = [
+    'Trainer ID: ',
+    'About',
+  ];
+  // loads preferences
+  Future<void> _loadSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    trainerID = prefs.getInt('trainerID') ?? 0;
+    setState(() {
+      currentList[0] = 'Trainer ID: $trainerID';
+    });
+  }
+  // runs initially to set up the class/state
+  @override
+  void initState(){
+    super.initState();
+    _loadSharedPreferences();
+
+    setState(() {
+      itemCount = currentList.length + 1;
+      currentList[0] = 'Trainer ID: $trainerID';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      physics: const BouncingScrollPhysics(),
+      itemCount: itemCount,
+      separatorBuilder: (context, index) => const Divider(
+        color: seperatorColor,
+        thickness: 1,
+      ),
+      itemBuilder: (context, index) {
+        if (index == 0){
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              currentList[index],
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+            )
+          );
+        } else if (index < itemCount-1) {
+          return InkWell(
+            onTap: () {
+              if (index == 1) {
+                if (widget.changeSettingScreen != null) {
+                  widget.changeSettingScreen!(3); // Navigate to Edit Parameters page
+                } else {
+                  Logger().e('changeSettingScreen is null');
+                }
+                Logger().i('Edit Parameters button pressed');
+              } else if (index == 2) {
+                Logger().i('About button pressed');
+                if (widget.changeSettingScreen != null) {
+                  widget.changeSettingScreen!(4); // Navigate to Edit Parameters page
+                } else {
+                  Logger().e('changeSettingScreen is null');
+                }
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                // Instead of extra margin, only use internal padding.
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      currentList[index],
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 20,
+                      color: Colors.grey[600],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: ElevatedButton(
+              onPressed: () {
+                Logger().i('Cleared all local data');
+                SaveFileHandler().clearLocalData();
+                Phoenix.rebirth(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 211, 47, 47),
+                foregroundColor: Color.fromARGB(255, 238, 238, 238),
+                fixedSize: const Size(double.infinity, 60),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4), // Reduced rounding
+                ),
+              ),
+              child: const Text(
+                'Clear Local Data',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }
