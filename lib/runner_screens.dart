@@ -451,7 +451,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
   void _deleteFile(String fileName, int index) async {
     bool? confirmed = await showDialog<bool>(
     context: context,
-    builder: (BuildContext context) {
+    builder: (BuildContext context) { //TODO current colors of text are unreadable on the AlertDialog popup
       return AlertDialog(
         title: const Text('Confirm Delete'),
         content: Text('Are you sure you want to delete "$fileName"?',),
@@ -633,7 +633,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
               } else if (index == 2) {
                 Logger().i('About button pressed');
                 if (widget.changeSettingScreen != null) {
-                  widget.changeSettingScreen!(4); // Navigate to Edit Parameters page
+                  widget.changeSettingScreen!(4); //TODO this doesn't work
                 } else {
                   Logger().e('changeSettingScreen is null');
                 }

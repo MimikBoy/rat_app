@@ -21,19 +21,18 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
     _generateTrainerPrefs();
   }
 
-  //gets local handle on prefs and adds TrainerID field, filling it with 7 random numbers
+  //gets local handle on prefs and adds trainerID field, filling it with 7 random numbers
   Future<void> _generateTrainerPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('TrainerID')) {
-      prefs.setInt('TrainerID', Random().nextInt(10000000));
+    if (!prefs.containsKey('trainerID')) {
+      prefs.setInt('trainerID', Random().nextInt(10000000));
     }
     setState(() {
-      trainerID = prefs.getInt('TrainerID') ?? 1234567;
+      trainerID = prefs.getInt('trainerID') ?? 1234567;
     });
 
-    ;
   }
-
+  //TODO Markup of the page, it looks kinda ugly
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +62,10 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
             child: Text('Trainer ID: ${trainerID ?? 'Loading'}'),
           ),
           ElevatedButton(
-            onPressed: () => widget.onContinue(1),
+            onPressed: () {
+              widget.onContinue(1);
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
             child: Text('Continue'),
           ),
         ],
