@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'runner_screens.dart';
 import 'bluetooth.dart';
+import 'trainer_screens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
       // Show the TrainerHomePage.
       // Fokko: Put your Trainer main page here.
+      return TrainerScreensController();
       default:
       Logger().e('Invalid index: $startScreen');
       return WelcomeScreen(onContinue: _changeScreen,);
