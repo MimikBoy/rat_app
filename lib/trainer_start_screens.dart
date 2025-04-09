@@ -31,9 +31,8 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
       trainerID = prefs.getInt('trainerID') ?? 1234567;
     });
 
-    ;
   }
-
+  //TODO Markup of the page, it looks kinda ugly
   @override
   Widget build(BuildContext context) {
     return Scaffold(
