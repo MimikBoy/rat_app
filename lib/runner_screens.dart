@@ -60,7 +60,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
       'deviceRightAddress': deviceRightAddress,
     });
 
-    BluetoothManager().sendData('battery%');
+    BluetoothManager().sendData('battery');
 
     setState(() {
       // Update icon colors based on the connection status
