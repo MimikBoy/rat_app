@@ -47,6 +47,9 @@ dependencies:
   flutter_phoenix: ^1.1.1
 
 dev_dependencies:
+  #For the app icon
+  flutter_launcher_icons: ^0.13.1
+
   flutter_test:
     sdk: flutter
 
@@ -118,3 +121,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+#icon config
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
