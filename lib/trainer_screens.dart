@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'Trainer Screens/settings.dart';
+import 'Trainer Screens/Upload.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
@@ -48,7 +49,7 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
           });
         break;
       case 1:
-        page = const Placeholder();
+        page =  UploadScreen();
         setState(() {
             leadingIcon = IconButton(
               icon: const Icon(Icons.circle_outlined, size: 30),
