@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'RAT',
       theme: ThemeData(
         scaffoldBackgroundColor: Color.fromARGB(255, 33, 33, 33),
         splashColor: const Color.fromARGB(44, 58, 69, 108),     // Custom splash (ripple) color.
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
           hintStyle: TextStyle(color: Color.fromARGB(255, 158, 158, 158)),
         ),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'RAT App Home Page'),
     );
   }
 }
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
       // Show the TrainerHomePage.
       // Fokko: Put your Trainer main page here.
-      return TrainerScreensController();
+      return TrainerPageManager();
       default:
       Logger().e('Invalid index: $startScreen');
       return WelcomeScreen(onContinue: _changeScreen,);
