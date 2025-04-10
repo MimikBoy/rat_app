@@ -24,6 +24,7 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
   Color leftBatteryColor = Colors.white;
   Color rightBatteryColor = Colors.white;
   String appBarTitle = 'Home';
+  String runnerID = '0';
 
 
   IconButton leadingIcon = IconButton(
@@ -39,7 +40,15 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
     Widget page;
     switch (screenIndex) {
       case 0:
-        page = TrainerHomePage();
+        page = TrainerHomePage(
+            onRunnerSelected: (runnerID) {
+              setState(() {
+                screenIndex = 3;
+                appBarTitle = runnerID;
+                this.runnerID = runnerID;
+              });
+            },
+          );
         setState(() {
             leadingIcon = IconButton(
               icon: const Icon(Icons.circle_outlined, size: 30),
@@ -72,7 +81,7 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
           });
         break;
       case 3:
-        page = const TrainerParametersPage();
+        page = DataVisualizationPage(runnerID: runnerID,);
         break;
       default:
         page = Placeholder();

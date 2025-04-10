@@ -21,7 +21,8 @@ PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
 }
 
 class TrainerHomePage extends StatefulWidget {
-  const TrainerHomePage({super.key});
+  final Function(String runnerID) onRunnerSelected;
+  const TrainerHomePage({super.key, required this.onRunnerSelected});
 
   @override
   State<TrainerHomePage> createState() => _TrainerHomePageState();
@@ -54,10 +55,7 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
         return InkWell(
           onTap: () {
             Logger().i('Tapped on item $index');
-            Navigator.push(
-              context,
-              pageTransSwipeLeft(DataVisualizationPage(runnerID: knownRunners[index])),
-            );
+            widget.onRunnerSelected(knownRunners[index]);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -96,13 +94,14 @@ class DataVisualizationPage extends StatefulWidget{
 }
 
 class _DataVisualizationPageState extends State<DataVisualizationPage> {
-  List<String> runNames = [];
+  List<String> runNames = ['T1', 'T2', 'T3', 'T4', 'T5'];
   int currentIndex = 0;
+  String selectedRun = 'T1';
 
   void fetchRunNames(String runnerID) async{
-    List<String> fetchedRunNames = await SaveFileHandler().getAllRunnerFileNames(runnerID);
+    //List<String> fetchedRunNames = await SaveFileHandler().getAllRunnerFileNames(runnerID);
     setState(() {
-      runNames = fetchedRunNames;
+      //runNames = fetchedRunNames;
     });
   }
 
@@ -110,47 +109,50 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   void initState() {
     super.initState();
     // Fetch the runs data for the specific runnerID
-    fetchRunNames(widget.runnerID);
+    //fetchRunNames(widget.runnerID);
   }
 
   @override
   Widget build(BuildContext context) {
     return runNames.isEmpty
       ? const Center(child: CircularProgressIndicator())
-      : Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      : Row(
         children: [
-          Text(
-            'Selected Date: ${runNames[currentIndex]}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        IconButton(
+          icon: Icon(Icons.arrow_left),
+          onPressed: () {
+            // Handle backward navigation through your date array.
+          },
+        ),
+        // GestureDetector or PopupMenuButton for date display:
+        PopupMenuButton<String>(
+          onSelected: (String run) {
+            // Update the selected date.
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Text(
+              // Format your selected date as needed.
+              'Selected Date: $selectedRun',
+              style: TextStyle(fontSize: 16),
+            ),
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: currentIndex > 0
-                    ? () {
-                        setState(() {
-                          currentIndex--;
-                        });
-                      }
-                    : null,
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward),
-                onPressed: currentIndex < runNames.length - 1
-                    ? () {
-                        setState(() {
-                          currentIndex++;
-                        });
-                      }
-                    : null,
-              ),
-            ],
-          ),
-        ],
-      );
+          itemBuilder: (BuildContext context) {
+            return runNames.map((String date) {
+              return PopupMenuItem<String>(
+                value: date,
+                child: Text(date),
+              );
+            }).toList();
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.arrow_right),
+          onPressed: () {
+            // Handle forward navigation through your date array.
+          },
+        ),
+      ],
+    );
   }
 }
