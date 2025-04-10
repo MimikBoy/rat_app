@@ -39,7 +39,7 @@ class SaveFileHandler {
     final newDir = Directory(newDirPath);
     if (!await newDir.exists()) {
       await newDir.create(recursive: true);
-      print('Directory created: $newDirPath');
+      Logger().i('Directory created: $newDirPath');
     }
     final file = File('$newDirPath/$fileName.json');
     await file.writeAsString(jsonString);

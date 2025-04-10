@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p; //used for uploading
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rat_app/file_management.dart'; //used for decrypting
 import 'dart:convert'; //also used for decrypting
-import 'package:logger/src/logger.dart';
+import 'package:logger/logger.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
@@ -16,12 +16,11 @@ class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
 
   @override
-  _UploadScreenState createState() => _UploadScreenState();
+  UploadScreenState createState() => UploadScreenState();
 }
 
-//TODO  show checkmark
 //TODO show proper errors
-class _UploadScreenState extends State<UploadScreen> {
+class UploadScreenState extends State<UploadScreen> {
   int? trainerID;
   List<PlatformFile> uploadedFiles = [];
 
@@ -97,22 +96,8 @@ class _UploadScreenState extends State<UploadScreen> {
     } else {
       // User canceled the picker
     }
-    // Load the bytes for the selected file (if needed)
+    
     int index = uploadedFiles.length - 1;
-    // Load the bytes for the selected file (if needed)
-    if (uploadedFiles[index].bytes == null) {
-      // If bytes are not available, manually load them and create a new PlatformFile instance
-      final bytes = await uploadedFiles[index].bytes;
-
-      // Create a new PlatformFile with the loaded bytes
-      setState((){uploadedFiles[index] = PlatformFile(
-        name: uploadedFiles[index].name,
-        size: uploadedFiles[index].size,
-        path: uploadedFiles[index].path,
-        bytes: bytes,
-      );});
-      Logger().w("Retrying for bytes");
-    }
 
     //decrypt and save to correct folder
     if (uploadedFiles[index].bytes != null) {
