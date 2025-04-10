@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p; //used for uploading
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rat_app/file_management.dart'; //used for decrypting
 import 'dart:convert'; //also used for decrypting
+import 'package:logger/src/logger.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
@@ -46,14 +47,28 @@ class _UploadScreenState extends State<UploadScreen> {
   //Decrypts file and saves it as json instead. Also add the 
   Future<void> _decryptUpload(int index) async {
     SaveFileHandler decrypter = SaveFileHandler();
+    String runnerID = "0";
+
     String encryptedData = String.fromCharCodes(uploadedFiles[index].bytes!);
+    //extract the runner ID and actual encrypted data from the 3 lines
+    List<String> lines = encryptedData.split('\n');
+    if(lines[0] == "decrypted"){
+          runnerID = lines[1];
+          encryptedData = lines[2];
+          Logger().i('RunnerID and encryptedData extracted');
+    }else{
+          runnerID = "error";
+          encryptedData = "error";
+          Logger().i('RunnerID and encryptedData not found');
+    }
     String decryptedData = decrypter.decryptData(
       encryptedData,
       trainerID ?? 0000000,
     );
     Map<String, dynamic> dataMap = jsonDecode(decryptedData);
     decrypter.data = dataMap;
-    decrypter.saveDataTrainer(uploadedFiles[index].name);
+    decrypter.saveDataTrainer(uploadedFiles[index].name,runnerID);
+    Logger().i('File decrypted and saved to folder');
   }
 
   // adds the file to the list of uploaded files
@@ -62,22 +77,23 @@ class _UploadScreenState extends State<UploadScreen> {
       allowMultiple: true,
     );
 
-    if (result != null && result.count == 1 && (isPokkoFile(result.names[0]) || isJsonFile(result.names[0]))) {
+    if (result != null && result.count == 1 && isPokkoFile(result.names[0])) {
       setState(() {
         uploadedFiles.addAll(result.files);
+        Logger().i('File Uploaded');
       });
     } else {
       // User canceled the picker
     }
+
+    //decrypt and save to correct folder
+    int index = uploadedFiles.length - 1;
+    _decryptUpload(index);
   }
 
   // checks if the file extension is a .pokko extension
   bool isPokkoFile(String? filePath) {
     return p.extension(filePath!).toLowerCase() == '.pokko';
-  }
-    // checks if the file extension is a .pokko extension
-  bool isJsonFile(String? filePath) {
-    return p.extension(filePath!).toLowerCase() == '.json';
   }
 
   @override
