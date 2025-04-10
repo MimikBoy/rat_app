@@ -194,6 +194,7 @@ class _DataScreenState extends State<DataScreen> {
                 },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
+                
                 minimumSize: Size(0, 0),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary, // Set text color
@@ -201,7 +202,7 @@ class _DataScreenState extends State<DataScreen> {
               child: const Text(
                 'Skip',
                 style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 18.0,
                 ),
               ),
             ),
@@ -210,6 +211,9 @@ class _DataScreenState extends State<DataScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size(200, 60), // adjust width and height as needed
+                ),
                 onPressed: formValid
                 ? () async {
                   Logger().i('Continue button pressed');  
@@ -228,7 +232,7 @@ class _DataScreenState extends State<DataScreen> {
                     showError = true;
                   });
                 },
-                child: Text('Continue'),
+                child: Text('Continue', style: TextStyle(fontSize: 16.0, fontFamily: 'Roboto')),
               ),
             ),
           )

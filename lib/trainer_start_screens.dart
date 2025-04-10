@@ -44,31 +44,46 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
           },
           icon: const Icon(Icons.arrow_back),
         ),
+        title: const Text('Generate Trainer ID'),
       ),
 
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 15.0),
-            child: Text(
-              'Generate your trainer ID',
-              style: Theme.of(context).textTheme.titleSmall,
-              textAlign: TextAlign.center,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('Your new Trainer ID!!!',
+                style: TextStyle(fontSize: 20.0),
+              ),
+              
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Trainer ID: ${trainerID ?? 'Loading'}'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              widget.onContinue(1);
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
-            child: Text('Continue'),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('${trainerID ?? 'Loading'}',
+                style: TextStyle(fontSize: 20.0),
+              ),
+              
+            ),
+            const Spacer(),
+            SafeArea(
+              child: Padding(
+              padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    widget.onContinue(1);
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(200, 60), // adjust width and height as needed
+                  ),
+                  child: Text('Continue', style: TextStyle(fontSize: 16.0, fontFamily: 'Roboto')),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
