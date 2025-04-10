@@ -101,9 +101,9 @@ class DataVisualizationPage extends StatefulWidget {
 }
 
 class _DataVisualizationPageState extends State<DataVisualizationPage> {
-  List<String> runNames = ['T1', 'T2', 'T3', 'T4', 'T5'];
+  List<String> runNames = [];
   int currentIndex = 0;
-  String selectedRun = 'T1';
+  String selectedRun = '';
 
   void fetchRunNames(String runnerID) async {
     List<String> fetchedRunNames = await SaveFileHandler()
@@ -178,38 +178,57 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
                 children: [
                   IconButton(
                     icon: Icon(Icons.arrow_left, size: 40),
-                    onPressed: () {
-                      // Handle backward navigation through your date array.
-                    },
+                    onPressed: currentIndex == 0
+                    ? null // Disable the button if it's the last item
+                    : () {
+                        setState(() {
+                          currentIndex--;
+                          selectedRun = runNames[currentIndex];
+                        });
+                      },
                   ),
                   // GestureDetector or PopupMenuButton for date display:
-                  PopupMenuButton<String>(
-                    onSelected: (String run) {
-                      // Update the selected date.
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
+                  Flexible(
+                    child: PopupMenuButton<String>(
+                      onSelected: (String run) {
+                        setState(() {
+                          selectedRun = run;
+                          currentIndex = runNames.indexOf(run);
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
+                        child: Text(
+                          // Format your selected date as needed.
+                          selectedRun,
+                          style: TextStyle(fontSize: 20,),
+                          textAlign: TextAlign.center,
+                           overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      child: Text(
-                        // Format your selected date as needed.
-                        selectedRun,
-                        style: TextStyle(fontSize: 20),
-                      ),
+                      itemBuilder: (BuildContext context) {
+                        return runNames.map((String date) {
+                          return PopupMenuItem<String>(
+                            value: date,
+                            child: Text(date),
+                          );
+                        }).toList();
+                      },
                     ),
-                    itemBuilder: (BuildContext context) {
-                      return runNames.map((String date) {
-                        return PopupMenuItem<String>(
-                          value: date,
-                          child: Text(date),
-                        );
-                      }).toList();
-                    },
                   ),
                   IconButton(
                     icon: Icon(Icons.arrow_right, size: 40),
-                    onPressed: () {},
+                    onPressed: currentIndex == runNames.length - 1
+                    ? null // Disable the button if it's the last item
+                    : () {
+                        setState(() {
+                          currentIndex++;
+                          selectedRun = runNames[currentIndex];
+                        });
+                      },
                   ),
                 ],
               ),
