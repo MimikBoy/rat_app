@@ -32,7 +32,7 @@ class WelcomeScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 100),
           Image.asset(
-            'assets/rat_icon.png',
+            'assets/icon/rat_icon.png',
             height: 200, // adjust as needed
           ),
           Center(

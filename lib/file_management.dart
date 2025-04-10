@@ -164,7 +164,7 @@ class SaveFileHandler {
       final files = directory.listSync(); // List all files and directories
       final fileNames = files
           .whereType<File>() // Filter only files
-          .map((file) => file.path.split(Platform.pathSeparator).last) // Extract file names
+          .map((file) => p.basenameWithoutExtension(file.path)) // Extract file names
           .toList(); // Convert to a List<String>
       fileNames.sort();
       return fileNames;

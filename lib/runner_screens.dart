@@ -205,8 +205,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
 
   Map<String, List<double>> toStore = {};
 
-  List<String> angleLeft = [], angleRight = [], timeAngleLeft = [], timeAngleRight = [],
-              grfLeft = [], grfRight = [], timeGrfLeft = [], timeGrfRight = [], timeGroundLeft = [], timeGroundRight = [];
+  List<String> angleLeft = ['3'], angleRight = ['2'], timeAngleLeft = ['3'], timeAngleRight = ['4'],
+              grfLeft = ['5'], grfRight = ['6'], timeGrfLeft = ['7'], timeGrfRight = ['8'], timeGroundLeft = ['9'], timeGroundRight = ['10'];
 
   Future<void> _countdown() async{
     if (!mounted) return;
