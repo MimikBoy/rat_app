@@ -69,6 +69,17 @@ class _UploadScreenState extends State<UploadScreen> {
     decrypter.data = dataMap;
     decrypter.saveDataTrainer(uploadedFiles[index].name, runnerID);
     Logger().i('File decrypted and saved to folder');
+    //add the runnerID to the runnerIDList
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> existingRunners = prefs.getStringList('runnerIDList') ?? [];
+    if(!existingRunners.contains(runnerID)){
+      existingRunners.add(runnerID);
+      prefs.setStringList('runnerIDList', existingRunners);
+      Logger().i('Logged new runner');
+    }else{
+      Logger().w('Runner already exists');
+    }
+    
   }
 
   // adds the file to the list of uploaded files
