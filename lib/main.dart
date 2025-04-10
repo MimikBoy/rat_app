@@ -6,15 +6,29 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'runner_screens.dart';
 import 'bluetooth.dart';
 import 'trainer_screens.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  // Initialize connection status
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setBool('hasBeenCalled', false);
+  // Initialize Bluetooth connection
   BluetoothManager btManager = BluetoothManager();
   await btManager.initializeBluetooth(); 
-  // Initialize Bluetooth connection
+  
+  // Initialize local notifications
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('icon/rat_icon.png');
+  
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings,);
+
   runApp(Phoenix(child: MyApp()));
 }
 

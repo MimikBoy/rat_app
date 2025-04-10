@@ -8,11 +8,15 @@ import 'dart:async';
 import 'file_management.dart';
 import 'bluetooth.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color redButtons = Color.fromARGB(255, 211, 47, 47);
 const Color greenButtons = Color.fromARGB(255, 76, 175, 80);
 const Color greyButtons = Color.fromARGB(255, 158, 158, 158);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class RunnerPageManager extends StatefulWidget{
   const RunnerPageManager({super.key});
@@ -361,6 +365,64 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     }
   }
 
+  Future<void> handleAlertNotification(String data, String title) async{
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+            AndroidNotificationDetails(
+          'alert_channel', // Channel ID
+          'Alerts', // Channel name
+          channelDescription: 'Notifications for alerts',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          sound: RawResourceAndroidNotificationSound('sound_effects/metal-pipe.mp3'),
+        );
+
+        const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+
+      final int notificationId = DateTime.now().millisecondsSinceEpoch;
+
+      await flutterLocalNotificationsPlugin.show(
+        notificationId, // Notification ID
+        title, // Notification title
+        data, // Notification body
+        platformChannelSpecifics,
+      );
+  }
+
+  void playMetalPipe(){
+    final player = AudioPlayer();
+    player.play(AssetSource('sound_effects/metal-pipe.mp3'));
+  }
+
+  bool _isDialogVisible = false;
+
+  void alertDialogBox(String title, String message) {
+    if (mounted && !_isDialogVisible) {
+      _isDialogVisible = true;
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _isDialogVisible = false;
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ).then((_) {
+        _isDialogVisible = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -376,30 +438,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       Logger().i('Left data: $data');
       if (data.startsWith('alert')){
         Logger().e('Alert: $data');
-
-        final player = AudioPlayer();
-        player.play(AssetSource('sound_effects/metal-pipe.mp3'));
-
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Alert Left: $data'),
-                content: Text(data),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-
+        // playMetalPipe();
+        // alertDialogBox('Alert Left', data);
+        handleAlertNotification(data, 'Alert Left');
         return;
       }
       List<String> dataString = data.substring(5).split("|");
@@ -426,31 +467,18 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       if (data.startsWith('alert')){
         Logger().e('Alert: $data');
 
-        final player = AudioPlayer();
-        player.play(AssetSource('sound_effects/metal-pipe.mp3'));
+        // playMetalPipe();
 
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Alert Right: $data'),
-                content: Text(data),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
+        // alertDialogBox('Alert Right', data);
+
+        handleAlertNotification(data, 'Alert Right');
+
+        if (data.contains('|')){
+          data = 'data ${data.substring(data.indexOf('|')-1)}';
+        } else {
+          return;
         }
-
-        return;
-      }
+      }  
 
       List<String> dataString = data.substring(5).split("|");
 
