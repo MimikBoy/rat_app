@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart'; //used for uploading
 import 'package:path/path.dart' as p; //used for uploading
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rat_app/file_management.dart'; //used for decrypting
-
+import 'dart:convert'; //also used for decrypting
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
@@ -24,14 +24,6 @@ class _UploadScreenState extends State<UploadScreen> {
   int? trainerID;
   List<PlatformFile> uploadedFiles = [];
 
-  Future<void> _loadSharedPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    trainerID = prefs.getInt('trainerID') ?? 0;
-    setState(() {
-      //fill in
-    });
-  }
-
   // runs initially to set up the class/state
   @override
   void initState() {
@@ -43,9 +35,26 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
-  //Decodes file and removes it from the uploaded list
-  
+  Future<void> _loadSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    trainerID = prefs.getInt('trainerID') ?? 0;
+    setState(() {
+      //fill in
+    });
+  }
 
+  //Decrypts file and saves it as json instead. Also add the 
+  Future<void> _decryptUpload(int index) async {
+    SaveFileHandler decrypter = SaveFileHandler();
+    String encryptedData = String.fromCharCodes(uploadedFiles[index].bytes!);
+    String decryptedData = decrypter.decryptData(
+      encryptedData,
+      trainerID ?? 0000000,
+    );
+    Map<String, dynamic> dataMap = jsonDecode(decryptedData);
+    decrypter.data = dataMap;
+    decrypter.saveDataNoEncrypt(uploadedFiles[index].name);
+  }
 
   // adds the file to the list of uploaded files
   Future<void> _pickFile() async {
@@ -53,7 +62,7 @@ class _UploadScreenState extends State<UploadScreen> {
       allowMultiple: true,
     );
 
-    if (result != null && result.count == 1 && isPokkoFile(result.names[0])) {
+    if (result != null && result.count == 1 && (isPokkoFile(result.names[0]) || isJsonFile(result.names[0]))) {
       setState(() {
         uploadedFiles.addAll(result.files);
       });
@@ -65,6 +74,10 @@ class _UploadScreenState extends State<UploadScreen> {
   // checks if the file extension is a .pokko extension
   bool isPokkoFile(String? filePath) {
     return p.extension(filePath!).toLowerCase() == '.pokko';
+  }
+    // checks if the file extension is a .pokko extension
+  bool isJsonFile(String? filePath) {
+    return p.extension(filePath!).toLowerCase() == '.json';
   }
 
   @override
@@ -89,19 +102,15 @@ class _UploadScreenState extends State<UploadScreen> {
                         itemCount: uploadedFiles.length,
                         itemBuilder: (context, index) {
                           final file = uploadedFiles[index];
-                          return Row( //add decode button here
-                            children: [
-                              ListTile(
-                                leading: Icon(Icons.insert_drive_file),
-                                title: Text(
-                                  p.basename(file.name),
-                                  style: TextStyle(color: textColor),
-                                ),
-                                subtitle: Text(
-                                  '${(file.size / 1024).toStringAsFixed(2)} KB',
-                                ),
-                              ),
-                            ],
+                          return ListTile(
+                            leading: Icon(Icons.insert_drive_file),
+                            title: Text(
+                              p.basename(file.name),
+                              style: TextStyle(color: textColor),
+                            ),
+                            subtitle: Text(
+                              '${(file.size / 1024).toStringAsFixed(2)} KB',
+                            ),
                           );
                         },
                       ),

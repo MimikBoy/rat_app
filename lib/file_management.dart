@@ -23,6 +23,16 @@ class SaveFileHandler {
     Logger().i('File saved: ${file.path}');
   }
 
+    Future<void> saveDataNoEncrypt(String fileName) async {
+    // Logic to save the file
+    String jsonString = jsonEncode(data);
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/$fileName.json');
+    await file.writeAsString(jsonString);
+    Logger().i('File saved: ${file.path}');
+  }
+
+
   Future<void> delete(String fileName) async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/$fileName.pokko');

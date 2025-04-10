@@ -331,7 +331,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     currentList.add(_startTime.toString().substring(0, _startTime.toString().length - 4));
     await prefs.setStringList('fileNames', currentList);
 
-    int trainerID = prefs.getInt('trainerID') ?? 0;
+    int trainerID = prefs.getInt('trainerID') ?? 0;  //should this be an await?
     SaveFileHandler fileHandler = SaveFileHandler();
     fileHandler.data = toStore;
     await fileHandler.saveData(_startTime.toString().substring(0, _startTime.toString().length - 4), trainerID);
