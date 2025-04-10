@@ -606,7 +606,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
   int runnerID = 0;
   List<String> currentList = [
     'Runner ID: ',
-    'Edit Paramaters',
+    'Edit Parameters',
     'About',
   ];
 

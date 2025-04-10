@@ -77,9 +77,14 @@ class SaveFileHandler {
     Logger().i('IV: ${iv.base64}');
 
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
-    final decrypted = encrypter.decrypt64(base64Data, iv: iv);
 
-    return decrypted;
+    try{
+      final decrypted = encrypter.decrypt64(base64Data, iv: iv);
+      return decrypted;
+    }catch(e){
+      Logger().e('Decryption failed: $e');
+      return "";
+    }
   }
 
   Future<void> download(String fileName) async {

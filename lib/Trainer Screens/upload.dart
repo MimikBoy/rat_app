@@ -64,21 +64,24 @@ class UploadScreenState extends State<UploadScreen> {
       encryptedData,
       trainerID ?? 0000000,
     );
-    Map<String, dynamic> dataMap = jsonDecode(decryptedData);
-    decrypter.data = dataMap;
-    decrypter.saveDataTrainer(uploadedFiles[index].name, runnerID);
-    Logger().i('File decrypted and saved to folder');
-    //add the runnerID to the runnerIDList
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> existingRunners = prefs.getStringList('runnerIDList') ?? [];
-    if(!existingRunners.contains(runnerID)){
-      existingRunners.add(runnerID);
-      prefs.setStringList('runnerIDList', existingRunners);
-      Logger().i('Logged new runner');
-    }else{
-      Logger().w('Runner already exists');
+    if (decryptedData != "") {
+      Map<String, dynamic> dataMap = jsonDecode(decryptedData);
+      decrypter.data = dataMap;
+      decrypter.saveDataTrainer(uploadedFiles[index].name, runnerID);
+      Logger().i('File decrypted and saved to folder');
+      //add the runnerID to the runnerIDList
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> existingRunners = prefs.getStringList('runnerIDList') ?? [];
+      if (!existingRunners.contains(runnerID)) {
+        existingRunners.add(runnerID);
+        prefs.setStringList('runnerIDList', existingRunners);
+        Logger().i('Logged new runner');
+      } else {
+        Logger().w('Runner already exists');
+      }
+    } else {
+      // make the app tell the user that the trainer ID is likely wrong
     }
-    
   }
 
   // adds the file to the list of uploaded files
@@ -96,7 +99,7 @@ class UploadScreenState extends State<UploadScreen> {
     } else {
       // User canceled the picker
     }
-    
+
     int index = uploadedFiles.length - 1;
 
     //decrypt and save to correct folder
