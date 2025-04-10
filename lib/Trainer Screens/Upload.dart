@@ -44,7 +44,7 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
-  //Decrypts file and saves it as json instead. Also add the 
+  //Decrypts file and saves it as json instead. Also add the
   Future<void> _decryptUpload(int index) async {
     SaveFileHandler decrypter = SaveFileHandler();
     String runnerID = "0";
@@ -52,14 +52,14 @@ class _UploadScreenState extends State<UploadScreen> {
     String encryptedData = String.fromCharCodes(uploadedFiles[index].bytes!);
     //extract the runner ID and actual encrypted data from the 3 lines
     List<String> lines = encryptedData.split('\n');
-    if(lines[0] == "decrypted"){
-          runnerID = lines[1];
-          encryptedData = lines[2];
-          Logger().i('RunnerID: $runnerID and encryptedData extracted');
-    }else{
-          runnerID = "error";
-          encryptedData = "error";
-          Logger().i('RunnerID and encryptedData not found');
+    if (lines[0] == "decrypted") {
+      runnerID = lines[1];
+      encryptedData = lines[2];
+      Logger().i('RunnerID: $runnerID and encryptedData extracted');
+    } else {
+      runnerID = "error";
+      encryptedData = "error";
+      Logger().i('RunnerID and encryptedData not found');
     }
     String decryptedData = decrypter.decryptData(
       encryptedData,
@@ -67,7 +67,7 @@ class _UploadScreenState extends State<UploadScreen> {
     );
     Map<String, dynamic> dataMap = jsonDecode(decryptedData);
     decrypter.data = dataMap;
-    decrypter.saveDataTrainer(uploadedFiles[index].name,runnerID);
+    decrypter.saveDataTrainer(uploadedFiles[index].name, runnerID);
     Logger().i('File decrypted and saved to folder');
   }
 
@@ -75,6 +75,7 @@ class _UploadScreenState extends State<UploadScreen> {
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
+      withData: true,
     );
 
     if (result != null && result.count == 1 && isPokkoFile(result.names[0])) {
@@ -85,15 +86,31 @@ class _UploadScreenState extends State<UploadScreen> {
     } else {
       // User canceled the picker
     }
+    // Load the bytes for the selected file (if needed)
+    int index = uploadedFiles.length - 1;
+    // Load the bytes for the selected file (if needed)
+    if (uploadedFiles[index].bytes == null) {
+      // If bytes are not available, manually load them and create a new PlatformFile instance
+      final bytes = await uploadedFiles[index].bytes;
+
+      // Create a new PlatformFile with the loaded bytes
+      setState((){uploadedFiles[index] = PlatformFile(
+        name: uploadedFiles[index].name,
+        size: uploadedFiles[index].size,
+        path: uploadedFiles[index].path,
+        bytes: bytes,
+      );});
+      Logger().w("Retrying for bytes");
+    }
 
     //decrypt and save to correct folder
-    int index = uploadedFiles.length - 1;
-    if(uploadedFiles[index].bytes != null){
+    if (uploadedFiles[index].bytes != null) {
       _decryptUpload(index);
-    }else{
-      Logger().e('File at index $index not found.\n File size: ${uploadedFiles[index].size}.\n Bytes: ${uploadedFiles[index].bytes}');
+    } else {
+      Logger().e(
+        'File at index $index not found.\n File size: ${uploadedFiles[index].size}.\n Bytes: ${uploadedFiles[index].bytes}',
+      );
     }
-    
   }
 
   // checks if the file extension is a .pokko extension

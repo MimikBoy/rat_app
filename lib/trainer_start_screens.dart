@@ -25,7 +25,8 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
   Future<void> _generateTrainerPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('trainerID')) {
-      prefs.setInt('trainerID', Random().nextInt(10000000));
+      // prefs.setInt('trainerID', Random().nextInt(10000000));
+      prefs.setInt('trainerID', 1234567);
     }
     setState(() {
       trainerID = prefs.getInt('trainerID') ?? 1234567;
