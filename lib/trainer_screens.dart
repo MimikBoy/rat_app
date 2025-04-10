@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'Trainer Screens/settings.dart';
-import 'Trainer Screens/Upload.dart';
+import 'Trainer Screens/upload.dart';
 import 'Trainer Screens/home.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);

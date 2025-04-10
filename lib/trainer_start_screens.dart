@@ -1,4 +1,4 @@
-import 'dart:math';
+// import 'dart:math';
 
 import 'package:logger/logger.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
     });
 
   }
-  //TODO Markup of the page, it looks kinda ugly
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

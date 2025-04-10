@@ -33,7 +33,6 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
 
   void getRunners() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('runnerIDList', ['123', '456', '789']);
     setState(() {
       knownRunners = prefs.getStringList('runnerIDList') ?? [];
     });
