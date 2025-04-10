@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rat_app/file_management.dart';
+import 'dart:convert';
 
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
@@ -12,10 +13,7 @@ PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
       const begin = Offset(1.0, 0.0);
       const end = Offset.zero;
       final tween = Tween(begin: begin, end: end);
-      return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
-      );
+      return SlideTransition(position: animation.drive(tween), child: child);
     },
   );
 }
@@ -30,8 +28,9 @@ class TrainerHomePage extends StatefulWidget {
 
 class _TrainerHomePageState extends State<TrainerHomePage> {
   List<String> knownRunners = [];
+  Map<String, List<double>> toStore = {};
 
-  void getRunners() async{
+  void getRunners() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       knownRunners = prefs.getStringList('runnerIDList') ?? [];
@@ -67,7 +66,10 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
                   Text(
                     'Runner ID: ${knownRunners[index]}',
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios_rounded,
@@ -84,7 +86,7 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
   }
 }
 
-class DataVisualizationPage extends StatefulWidget{
+class DataVisualizationPage extends StatefulWidget {
   final String runnerID;
   const DataVisualizationPage({super.key, required this.runnerID});
 
@@ -97,10 +99,12 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   int currentIndex = 0;
   String selectedRun = 'T1';
 
-  void fetchRunNames(String runnerID) async{
-    List<String> fetchedRunNames = await SaveFileHandler().getAllRunnerFileNames(runnerID);
+  void fetchRunNames(String runnerID) async {
+    List<String> fetchedRunNames = await SaveFileHandler()
+        .getAllRunnerFileNames(runnerID);
     setState(() {
       runNames = fetchedRunNames;
+      updateSelectedRun(runNames[0]);
     });
   }
 
@@ -117,57 +121,72 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
     fetchRunNames(widget.runnerID);
   }
 
+  //takes the
+  Map<String, List<double>> jsonToMap(String jsonString) {
+    final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
+
+    return decoded.map((key, value) {
+      List<double> doubleList =
+          (value as List<dynamic>)
+              .map((e) => e is double ? e : double.parse(e.toString()))
+              .toList();
+      return MapEntry(key, doubleList);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return runNames.isEmpty
-      ? const Center(child: CircularProgressIndicator())
-      : Column(
-        mainAxisAlignment: MainAxisAlignment.start, // Align content to the top
-        crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
-        children: [
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_left, size: 40),
-                  onPressed: () {
-                    // Handle backward navigation through your date array.
-                  },
-                ),
-                // GestureDetector or PopupMenuButton for date display:
-                PopupMenuButton<String>(
-                  onSelected: (String run) {
-                    // Update the selected date.
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Text(
-                      // Format your selected date as needed.
-                      selectedRun,
-                      style: TextStyle(fontSize: 25),
-                    ),
+        ? const Center(child: CircularProgressIndicator())
+        : Column(
+          mainAxisAlignment:
+              MainAxisAlignment.start, // Align content to the top
+          crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+          children: [
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_left, size: 40),
+                    onPressed: () {
+                      // Handle backward navigation through your date array.
+                    },
                   ),
-                  itemBuilder: (BuildContext context) {
-                    return runNames.map((String date) {
-                      return PopupMenuItem<String>(
-                        value: date,
-                        child: Text(date,),
-                      );
-                    }).toList();
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.arrow_right, size: 40),
-                  onPressed: () {
-                    
-                  },
-                ),
-              ],
+                  // GestureDetector or PopupMenuButton for date display:
+                  PopupMenuButton<String>(
+                    onSelected: (String run) {
+                      // Update the selected date.
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      child: Text(
+                        // Format your selected date as needed.
+                        selectedRun,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    itemBuilder: (BuildContext context) {
+                      return runNames.map((String date) {
+                        return PopupMenuItem<String>(
+                          value: date,
+                          child: Text(date),
+                        );
+                      }).toList();
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.arrow_right, size: 40),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Divider(),
-        ],
-      );
+            const Divider(),
+          ],
+        );
   }
 }
