@@ -212,6 +212,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   final service = FlutterBackgroundService();
   Map<String, List<double>> toStore = {};
 
+  List<String> angleLeft = [], angleRight = [], timeAngleLeft = [], timeAngleRight = [],
+              grfLeft = [], grfRight = [], timeGrfLeft = [], timeGrfRight = [], timeGroundLeft = [], timeGroundRight = [];
+
   Future<void> _countdown() async{
     if (!mounted) return;
       setState(() {
@@ -249,10 +252,20 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void _startStopButton()  async{
     if (_buttonColor == defaultButtonColor) {
       Logger().i('Button color changed to red');
-      BluetoothManager().sendData('start 57 82 218');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int weight = prefs.getInt('weight') ?? 0;
+      int imuToKnee = prefs.getInt('imuToKnee') ?? 0;
+      int kneeToHip = prefs.getInt('kneeToHip') ?? 0;
+
+      BluetoothManager().sendData('start $weight $imuToKnee $kneeToHip');
+
       await _countdown();
+
       _setToStop();
+
       _startTimer(0);
+
+
     } else {
 
       Logger().i('Button color changed to green');
@@ -261,7 +274,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
         _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Color.fromARGB(255, 224, 224, 224));
         _buttonColor = defaultButtonColor;
       });
-      await Future.delayed(const Duration(milliseconds: 100));  
+      await Future.delayed(const Duration(milliseconds: 100)); 
       stopTimer();
     }
     _isCountingDown = false;
@@ -289,8 +302,26 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   }
   
   void stopTimer() async {
-
     _timer?.cancel();
+
+    if (grfLeft == [] && grfRight == [] && timeGrfLeft == [] && timeGrfRight == [] && timeGroundLeft == [] && timeGroundRight == [] && angleLeft == [] && angleRight == [] && timeAngleLeft == [] && timeAngleRight == []) {
+      Logger().i('No data to save');
+    }
+    Logger().i('Data to save: $grfLeft, $grfRight, $timeGrfLeft, $timeGrfRight, $timeGroundLeft, $timeGroundRight, $angleLeft, $angleRight, $timeAngleLeft, $timeAngleRight');
+
+    toStore = {
+      "grfLeft": grfLeft.map((e) => double.parse(e)).toList(),
+      "grfRight": grfRight.map((e) => double.parse(e)).toList(),
+      "timeGrfLeft": timeGrfLeft.map((e) => double.parse(e)).toList(),
+      "timeGrfRight": timeGrfRight.map((e) => double.parse(e)).toList(),
+      "timeGroundLeft": timeGroundLeft.map((e) => double.parse(e)).toList(),
+      "timeGroundRight": timeGroundRight.map((e) => double.parse(e)).toList(),
+      "angleLeft": angleLeft.map((e) => double.parse(e)).toList(),
+      "angleRight": angleRight.map((e) => double.parse(e)).toList(),
+      "timeAngleLeft": timeAngleLeft.map((e) => double.parse(e)).toList(),
+      "timeAngleRight": timeAngleRight.map((e) => double.parse(e)).toList(),
+    };
+
     if (!mounted) return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
