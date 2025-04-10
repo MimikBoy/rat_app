@@ -98,6 +98,7 @@ class UploadScreenState extends State<UploadScreen> {
       });
     } else {
       // User canceled the picker
+      return;
     }
 
     int index = uploadedFiles.length - 1;
