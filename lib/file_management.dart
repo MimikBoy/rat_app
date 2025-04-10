@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as p;
 
 class SaveFileHandler {
   Map<String, dynamic> data;
@@ -26,11 +27,13 @@ class SaveFileHandler {
   }
 
   Future<void> saveDataTrainer(String fileName, String runnerID) async {
+    //remove file extension (.pokko)
+    fileName = p.basenameWithoutExtension(fileName);
     // Logic to save the file
     String jsonString = jsonEncode(data);
     final dir = await getApplicationDocumentsDirectory();
     //path of the new directory
-    final newDirPath = '${dir.path}/newDirectory';
+    final newDirPath = '${dir.path}/$runnerID';
 
     // Check if the directory exists, if not, create it
     final newDir = Directory(newDirPath);
@@ -70,7 +73,8 @@ class SaveFileHandler {
     String paddedKey = trainerID.toString().padLeft(16, '0');
 
     final key = encrypt.Key.fromUtf8(paddedKey);
-    final iv = encrypt.IV.fromLength(16); // same IV used for encryption
+    final iv = encrypt.IV.fromUtf8('1234567890123456');
+    Logger().i('IV: ${iv.base64}');
 
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     final decrypted = encrypter.decrypt64(base64Data, iv: iv);
