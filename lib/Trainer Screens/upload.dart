@@ -6,6 +6,8 @@ import 'package:rat_app/file_management.dart'; //used for decrypting
 import 'dart:convert'; //also used for decrypting
 import 'package:logger/logger.dart';
 
+
+
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
 const Color redButtons = Color.fromARGB(255, 211, 47, 47);
