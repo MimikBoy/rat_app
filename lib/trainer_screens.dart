@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'Trainer Screens/settings.dart';
 import 'Trainer Screens/Upload.dart';
+import 'Trainer Screens/home.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
@@ -38,7 +39,7 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
     Widget page;
     switch (screenIndex) {
       case 0:
-        page = Placeholder();
+        page = TrainerHomePage();
         setState(() {
             leadingIcon = IconButton(
               icon: const Icon(Icons.circle_outlined, size: 30),

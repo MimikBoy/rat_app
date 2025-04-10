@@ -60,6 +60,10 @@ class MyApp extends StatelessWidget {
           titleTextStyle: TextStyle(color: Colors.white),
           contentTextStyle: TextStyle(color: Colors.white),
         ),
+        dividerTheme: DividerThemeData(
+          color: Color.fromARGB(100, 189, 189, 189), // Set the color of the divider
+          thickness: 1, // Set the thickness of the divider
+        ),
       ),
       home: MyHomePage(title: 'RAT App Home Page'),
     );

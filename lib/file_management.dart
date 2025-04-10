@@ -18,7 +18,9 @@ class SaveFileHandler {
     String jsonString = jsonEncode(data);
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/$fileName.pokko');
-    String encryptedData = "decrypted\n${encryptData(jsonString, trainerID)}";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? runnerID = prefs.getInt('runnerID');
+    String encryptedData = "decrypted\n$runnerID\n${encryptData(jsonString, trainerID)}";
     await file.writeAsString(encryptedData);
     Logger().i('File saved: ${file.path}');
   }
