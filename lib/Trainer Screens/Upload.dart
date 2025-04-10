@@ -53,7 +53,7 @@ class _UploadScreenState extends State<UploadScreen> {
     );
     Map<String, dynamic> dataMap = jsonDecode(decryptedData);
     decrypter.data = dataMap;
-    decrypter.saveDataNoEncrypt(uploadedFiles[index].name);
+    decrypter.saveDataTrainer(uploadedFiles[index].name);
   }
 
   // adds the file to the list of uploaded files

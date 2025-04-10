@@ -25,7 +25,7 @@ class SaveFileHandler {
     Logger().i('File saved: ${file.path}');
   }
 
-    Future<void> saveDataNoEncrypt(String fileName) async {
+    Future<void> saveDataTrainer(String fileName) async {
     // Logic to save the file
     String jsonString = jsonEncode(data);
     final dir = await getApplicationDocumentsDirectory();
