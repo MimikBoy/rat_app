@@ -34,7 +34,6 @@ class TrainerHomePage extends StatefulWidget {
 
 class _TrainerHomePageState extends State<TrainerHomePage> {
   List<String> knownRunners = [];
-  Map<String, List<double>> toStore = {};
 
   void getRunners() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -104,6 +103,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   List<String> runNames = [];
   int currentIndex = 0;
   String selectedRun = '';
+  Map<String, List<double>> runnerMap = {};
 
   void fetchRunNames(String runnerID) async {
     List<String> fetchedRunNames = await SaveFileHandler()
@@ -114,9 +114,11 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
     });
   }
 
-  void updateSelectedRun(String run) {
+  Future<void> updateSelectedRun(String run) async {
+    selectedRun = run;
+    String dataJson = await getRunData(widget.runnerID, selectedRun);
     setState(() {
-      selectedRun = run;
+      runnerMap = jsonToMap(dataJson);
     });
   }
 
@@ -143,7 +145,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   //gets String from file
   Future<String> getRunData(String runnerID, String selectedRun) async {
     final dir = await getApplicationDocumentsDirectory();
-    final String filePathString = "${dir.path}/$runnerID/$selectedRun";
+    final String filePathString = "${dir.path}/$runnerID/$selectedRun.json";
     final file = File(filePathString);
 
     if (await file.exists()) {
@@ -156,11 +158,8 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   }
 
   // Convert List<double> into FlSpot list for plotting
-  List<FlSpot> _createDataPoints(List<double> data) {
-    return List.generate(
-      data.length,
-      (index) => FlSpot(index.toDouble(), data[index]),
-    );
+  List<FlSpot> _createDataPoints(List<double> x, List<double> y) {
+    return List.generate(x.length, (index) => FlSpot(x[index], y[index]));
   }
 
   @override
@@ -178,14 +177,15 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
                 children: [
                   IconButton(
                     icon: Icon(Icons.arrow_left, size: 40),
-                    onPressed: currentIndex == 0
-                    ? null // Disable the button if it's the last item
-                    : () {
-                        setState(() {
-                          currentIndex--;
-                          selectedRun = runNames[currentIndex];
-                        });
-                      },
+                    onPressed:
+                        currentIndex == 0
+                            ? null // Disable the button if it's the last item
+                            : () {
+                              setState(() {
+                                currentIndex--;
+                                selectedRun = runNames[currentIndex];
+                              });
+                            },
                   ),
                   // GestureDetector or PopupMenuButton for date display:
                   Flexible(
@@ -204,9 +204,9 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
                         child: Text(
                           // Format your selected date as needed.
                           selectedRun,
-                          style: TextStyle(fontSize: 20,),
+                          style: TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
-                           overflow: TextOverflow.ellipsis,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       itemBuilder: (BuildContext context) {
@@ -221,19 +221,100 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
                   ),
                   IconButton(
                     icon: Icon(Icons.arrow_right, size: 40),
-                    onPressed: currentIndex == runNames.length - 1
-                    ? null // Disable the button if it's the last item
-                    : () {
-                        setState(() {
-                          currentIndex++;
-                          selectedRun = runNames[currentIndex];
-                        });
-                      },
+                    onPressed:
+                        currentIndex == runNames.length - 1
+                            ? null // Disable the button if it's the last item
+                            : () {
+                              setState(() {
+                                currentIndex++;
+                                selectedRun = runNames[currentIndex];
+                              });
+                            },
                   ),
                 ],
               ),
             ),
             const Divider(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: true),
+                  titlesData: FlTitlesData(show: true),
+                  borderData: FlBorderData(show: true),
+                  minX: 0,
+                  maxX: runnerMap["timeGrfLeft"]!.reduce(
+                    (a, b) => a > b ? a : b,
+                  ),
+                  minY: runnerMap["grfLeft"]!.reduce(
+                    (a, b) => a < b ? a : b,
+                  ), //could also have manual min/max to filter out spikes, sorta
+                  maxY: runnerMap["grfLeft"]!.reduce((a, b) => a > b ? a : b),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _createDataPoints(
+                        runnerMap["timeGrfLeft"]!,
+                        runnerMap["grfLeft"]!,
+                      ), // Left data
+                      isCurved: true,
+                      color: Colors.blue,
+                      barWidth: 4,
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                    LineChartBarData(
+                      spots: _createDataPoints(
+                        runnerMap["timeGrfRight"]!,
+                        runnerMap["grfRight"]!,
+                      ), // Right data
+                      isCurved: true,
+                      color: Colors.red,
+                      barWidth: 4,
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: true),
+                  titlesData: FlTitlesData(show: true),
+                  borderData: FlBorderData(show: true),
+                  minX: 0,
+                  maxX: runnerMap["timeAngleLeft"]!.reduce(
+                    (a, b) => a > b ? a : b,
+                  ),
+                  minY: runnerMap["angleLeft"]!.reduce(
+                    (a, b) => a < b ? a : b,
+                  ), //these angles could also have manual min/max
+                  maxY: runnerMap["angleLeft"]!.reduce((a, b) => a > b ? a : b),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _createDataPoints(
+                        runnerMap["timeAngleLeft"]!,
+                        runnerMap["angleLeft"]!,
+                      ), // Left data
+                      isCurved: true,
+                      color: Colors.blue,
+                      barWidth: 4,
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                    LineChartBarData(
+                      spots: _createDataPoints(
+                        runnerMap["timeAngleRight"]!,
+                        runnerMap["angleRight"]!,
+                      ), // Right data
+                      isCurved: true,
+                      color: Colors.red,
+                      barWidth: 4,
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         );
   }
