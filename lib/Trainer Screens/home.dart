@@ -3,6 +3,11 @@ import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rat_app/file_management.dart';
 import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+// import 'package:file_picker/file_picker.dart'; //used for uploading
+// import 'package:path/path.dart' as p; //used for uploading
 
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
@@ -121,7 +126,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
     fetchRunNames(widget.runnerID);
   }
 
-  //takes the
+  //Turns the jsonstring from the datafile and turns it into a map
   Map<String, List<double>> jsonToMap(String jsonString) {
     final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
 
@@ -132,6 +137,20 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
               .toList();
       return MapEntry(key, doubleList);
     });
+  }
+  //gets String from file
+  Future<String> getRunData(String runnerID, String selectedRun) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final String filePathString = "${dir.path}/$runnerID/$selectedRun";
+    final file = File(filePathString);
+
+    if (await file.exists()) {
+      String output = await file.readAsString();
+      return output;
+    } else {
+      Logger().w("File does not exist, returning empty string");
+      return "";
+    }
   }
 
   @override
