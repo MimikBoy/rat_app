@@ -9,7 +9,6 @@ import 'file_management.dart';
 import 'bluetooth.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
-const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);
 const Color redButtons = Color.fromARGB(255, 211, 47, 47);
 const Color greenButtons = Color.fromARGB(255, 76, 175, 80);
 const Color greyButtons = Color.fromARGB(255, 158, 158, 158);
@@ -482,7 +481,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
   void _deleteFile(String fileName, int index) async {
     bool? confirmed = await showDialog<bool>(
     context: context,
-    builder: (BuildContext context) { //TODO current colors of text are unreadable on the AlertDialog popup
+    builder: (BuildContext context) {
       return AlertDialog(
         title: const Text('Confirm Delete'),
         content: Text('Are you sure you want to delete "$fileName"?',),
@@ -552,10 +551,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
       itemCount: itemCount,
-      separatorBuilder: (context, index) => const Divider(
-        color: seperatorColor,
-        thickness: 1,
-      ),
+      separatorBuilder: (context, index) => const Divider(),
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -637,10 +633,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
       itemCount: itemCount,
-      separatorBuilder: (context, index) => const Divider(
-        color: seperatorColor,
-        thickness: 1,
-      ),
+      separatorBuilder: (context, index) => const Divider(),
       itemBuilder: (context, index) {
         if (index == 0){
           return Padding(
