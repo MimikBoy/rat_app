@@ -19,8 +19,8 @@ class UploadScreen extends StatefulWidget {
   _UploadScreenState createState() => _UploadScreenState();
 }
 
-//TODO Decode uploaded file and show checkmark
-//TODO Put the data in prefs instead
+//TODO  show checkmark
+//TODO show proper errors
 class _UploadScreenState extends State<UploadScreen> {
   int? trainerID;
   List<PlatformFile> uploadedFiles = [];
@@ -55,7 +55,7 @@ class _UploadScreenState extends State<UploadScreen> {
     if(lines[0] == "decrypted"){
           runnerID = lines[1];
           encryptedData = lines[2];
-          Logger().i('RunnerID and encryptedData extracted');
+          Logger().i('RunnerID: $runnerID and encryptedData extracted');
     }else{
           runnerID = "error";
           encryptedData = "error";
@@ -88,7 +88,12 @@ class _UploadScreenState extends State<UploadScreen> {
 
     //decrypt and save to correct folder
     int index = uploadedFiles.length - 1;
-    _decryptUpload(index);
+    if(uploadedFiles[index].bytes != null){
+      _decryptUpload(index);
+    }else{
+      Logger().e('File at index $index not found.\n File size: ${uploadedFiles[index].size}.\n Bytes: ${uploadedFiles[index].bytes}');
+    }
+    
   }
 
   // checks if the file extension is a .pokko extension
