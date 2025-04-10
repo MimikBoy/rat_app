@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:rat_app/file_management.dart';
+import 'package:rat_app/file_management.dart';
 
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
@@ -99,9 +99,9 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   String selectedRun = 'T1';
 
   void fetchRunNames(String runnerID) async{
-    //List<String> fetchedRunNames = await SaveFileHandler().getAllRunnerFileNames(runnerID);
+    List<String> fetchedRunNames = await SaveFileHandler().getAllRunnerFileNames(runnerID);
     setState(() {
-      //runNames = fetchedRunNames;
+      runNames = fetchedRunNames;
     });
   }
 
@@ -115,7 +115,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   void initState() {
     super.initState();
     // Fetch the runs data for the specific runnerID
-    //fetchRunNames(widget.runnerID);
+    fetchRunNames(widget.runnerID);
   }
 
   @override
@@ -167,6 +167,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
               ],
             ),
           ),
+          const Divider(),
         ],
       );
   }
