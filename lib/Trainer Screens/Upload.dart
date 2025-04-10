@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as p;
+import 'package:file_picker/file_picker.dart'; //used for uploading
+import 'package:path/path.dart' as p; //used for uploading
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rat_app/file_management.dart'; //used for decrypting
 
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
@@ -21,6 +22,7 @@ class UploadScreen extends StatefulWidget {
 //TODO Put the data in prefs instead
 class _UploadScreenState extends State<UploadScreen> {
   int? trainerID;
+  List<PlatformFile> uploadedFiles = [];
 
   Future<void> _loadSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -41,8 +43,9 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
+  //Decodes file and removes it from the uploaded list
+  
 
-  List<PlatformFile> uploadedFiles = [];
 
   // adds the file to the list of uploaded files
   Future<void> _pickFile() async {
@@ -86,15 +89,19 @@ class _UploadScreenState extends State<UploadScreen> {
                         itemCount: uploadedFiles.length,
                         itemBuilder: (context, index) {
                           final file = uploadedFiles[index];
-                          return ListTile(
-                            leading: Icon(Icons.insert_drive_file),
-                            title: Text(
-                              p.basename(file.name),
-                              style: TextStyle(color: textColor),
-                            ),
-                            subtitle: Text(
-                              '${(file.size / 1024).toStringAsFixed(2)} KB',
-                            ),
+                          return Row( //add decode button here
+                            children: [
+                              ListTile(
+                                leading: Icon(Icons.insert_drive_file),
+                                title: Text(
+                                  p.basename(file.name),
+                                  style: TextStyle(color: textColor),
+                                ),
+                                subtitle: Text(
+                                  '${(file.size / 1024).toStringAsFixed(2)} KB',
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),
