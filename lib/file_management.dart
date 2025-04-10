@@ -56,9 +56,12 @@ class SaveFileHandler {
 
   String encryptData(String jsonData, int trainerID) {
     String paddedKey = trainerID.toString().padLeft(16, '0');
-
+    Logger().i('ENCRYPTING');
     final key = encrypt.Key.fromUtf8(paddedKey);
-    final iv = encrypt.IV.fromLength(16);
+    final iv = encrypt.IV.fromUtf8('1234567890123456');
+    
+    final ivString = iv.base64;
+    Logger().i('IV: $ivString');
 
     final encrypter = encrypt.Encrypter(encrypt.AES(key));
     final encrypted = encrypter.encrypt(jsonData, iv: iv);

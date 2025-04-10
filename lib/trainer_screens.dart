@@ -23,17 +23,54 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
   IconData rightBatteryIcon = Icons.battery_unknown_rounded;
   Color leftBatteryColor = Colors.white;
   Color rightBatteryColor = Colors.white;
+  int navBarIndex = 0;
   String appBarTitle = 'Home';
   String runnerID = '0';
 
 
   IconButton leadingIcon = IconButton(
-          icon: const Icon(Icons.circle_outlined, size: 30),
-          onPressed: () {
-            Logger().i('Profile button pressed');
-          },
-        );
+    icon: const Icon(Icons.circle_outlined, size: 30),
+    onPressed: () {
+      Logger().i('Profile button pressed');
+    },
+  );
 
+  void _runnerSelected(String runnerID){
+    setState(() {
+      screenIndex = 3;
+      appBarTitle = runnerID;
+      this.runnerID = runnerID;
+      navBarIndex = 0;
+    });
+    changeToBack(0);
+  }
+
+  void changeToProfile(){
+    setState(() {
+      leadingIcon = IconButton(
+        icon: const Icon(Icons.circle_outlined, size: 30),
+        onPressed: () {
+          Logger().i('Profile button pressed');
+        },
+      );
+    });
+  }
+
+  void changeToBack(int orgIndex){
+    setState(() {
+      leadingIcon = IconButton(
+        icon: const Icon(Icons.arrow_back, size: 30),
+        onPressed: () {
+          changeToProfile();
+          setState(() {
+            screenIndex = orgIndex;
+            appBarTitle = orgIndex == 0 ? 'Home' : orgIndex == 1 ? 'Uploads' : 'Settings';
+            navBarIndex = orgIndex;
+          });
+        },
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context){
@@ -41,44 +78,17 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
     switch (screenIndex) {
       case 0:
         page = TrainerHomePage(
-            onRunnerSelected: (runnerID) {
-              setState(() {
-                screenIndex = 3;
-                appBarTitle = runnerID;
-                this.runnerID = runnerID;
-              });
-            },
+            onRunnerSelected: _runnerSelected,
           );
-        setState(() {
-            leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
-              onPressed: () {
-                Logger().i('Profile button pressed');
-              },
-            );
-          });
+        changeToProfile();
         break;
       case 1:
         page =  UploadScreen();
-        setState(() {
-            leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
-              onPressed: () {
-                Logger().i('Profile button pressed');
-              },
-            );
-          });
+        changeToProfile();
         break;
       case 2:
         page = TrainerSettingsPage();
-        setState(() {
-            leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
-              onPressed: () {
-                Logger().i('Profile button pressed');
-              },
-            );
-          });
+        changeToProfile();
         break;
       case 3:
         page = DataVisualizationPage(runnerID: runnerID,);
@@ -110,7 +120,7 @@ class _TrainerPageManagerState extends State<TrainerPageManager> {
             label: 'Settings',
           ),
         ],
-        currentIndex: screenIndex > 2 ? 2 : screenIndex,
+        currentIndex: screenIndex > 2 ? navBarIndex : screenIndex,
         onTap: (index) {
           setState(() {
             screenIndex = index;

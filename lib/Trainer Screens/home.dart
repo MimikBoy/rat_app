@@ -116,43 +116,52 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   Widget build(BuildContext context) {
     return runNames.isEmpty
       ? const Center(child: CircularProgressIndicator())
-      : Row(
+      : Column(
+        mainAxisAlignment: MainAxisAlignment.start, // Align content to the top
+        crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
         children: [
-        IconButton(
-          icon: Icon(Icons.arrow_left),
-          onPressed: () {
-            // Handle backward navigation through your date array.
-          },
-        ),
-        // GestureDetector or PopupMenuButton for date display:
-        PopupMenuButton<String>(
-          onSelected: (String run) {
-            // Update the selected date.
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text(
-              // Format your selected date as needed.
-              'Selected Date: $selectedRun',
-              style: TextStyle(fontSize: 16),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_left, size: 40),
+                  onPressed: () {
+                    // Handle backward navigation through your date array.
+                  },
+                ),
+                // GestureDetector or PopupMenuButton for date display:
+                PopupMenuButton<String>(
+                  onSelected: (String run) {
+                    // Update the selected date.
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      // Format your selected date as needed.
+                      selectedRun,
+                      style: TextStyle(fontSize: 25),
+                    ),
+                  ),
+                  itemBuilder: (BuildContext context) {
+                    return runNames.map((String date) {
+                      return PopupMenuItem<String>(
+                        value: date,
+                        child: Text(date,),
+                      );
+                    }).toList();
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.arrow_right, size: 40),
+                  onPressed: () {
+                    // Handle forward navigation through your date array.
+                  },
+                ),
+              ],
             ),
           ),
-          itemBuilder: (BuildContext context) {
-            return runNames.map((String date) {
-              return PopupMenuItem<String>(
-                value: date,
-                child: Text(date),
-              );
-            }).toList();
-          },
-        ),
-        IconButton(
-          icon: Icon(Icons.arrow_right),
-          onPressed: () {
-            // Handle forward navigation through your date array.
-          },
-        ),
-      ],
-    );
+        ],
+      );
   }
 }
