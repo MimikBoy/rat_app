@@ -105,6 +105,12 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
     });
   }
 
+  void updateSelectedRun(String run) {
+    setState(() {
+      selectedRun = run;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -155,7 +161,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
                 IconButton(
                   icon: Icon(Icons.arrow_right, size: 40),
                   onPressed: () {
-                    // Handle forward navigation through your date array.
+                    
                   },
                 ),
               ],
