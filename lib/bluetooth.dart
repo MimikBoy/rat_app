@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
@@ -134,103 +133,28 @@ class BluetoothManager {
     
     return connectionStatus;
   }
-}
 
-class BluetoothSetupPage extends StatefulWidget {
-  const BluetoothSetupPage({super.key});
-
-  @override
-  State<BluetoothSetupPage> createState() => _BluetoothSetupPageState();
-}
-
-class _BluetoothSetupPageState extends State<BluetoothSetupPage> {
-  final BluetoothManager bluetoothManager = BluetoothManager();
-  String _statusMessage = "Connecting to devices...";
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeBluetooth();
-  }
-
-  Future<void> _initializeBluetooth() async {
-    bool permissionsGranted = await _requestBluetoothPermissions();
-    if (permissionsGranted) {
-      logger.i("Bluetooth permissions granted.");
-      //_connectToDevices();
+  Future<bool> checkConnection() async {
+    if (connectionLeft != null && connectionLeft!.isConnected) {
+      logger.i('Connection to LEFT is active');
     } else {
-      logger.e("Bluetooth permissions not granted.");
-    }
-  }
-
-  Future<bool> _requestBluetoothPermissions() async {
-    if (await Permission.bluetoothScan.request().isGranted &&
-        await Permission.bluetoothConnect.request().isGranted &&
-        await Permission.notification.request().isGranted) {
-      return true;
-    }
-    return false;
-  }
-
-  void _updateStatus(String message) {
-    setState(() {
-      _statusMessage = message;
-    });
-  }
-
-  Future<void> _connectToDevices() async {
-    List<BluetoothDevice> devices = await FlutterBluetoothSerial.instance.getBondedDevices();
-
-    BluetoothDevice? deviceLeft = devices.firstWhere(
-      (d) => d.name == "LEFT_PICO",
-      orElse: () => BluetoothDevice(address: "", name: "Unknown"),
-    );
-
-    BluetoothDevice? deviceRight = devices.firstWhere(
-      (d) => d.name == "RIGHT_PICO",
-      orElse: () => BluetoothDevice(address: "", name: "Unknown"),
-    );
-
-    if (deviceLeft.address.isEmpty) {
-      logger.e("Left not found! Make sure it's paired.");
-      return;
-    } else if (deviceRight.address.isEmpty) {
-      logger.e("Right not found! Make sure it's paired.");
-      return;
+      logger.e('Connection to LEFT is not active');
+      return false;
     }
 
-    try {
-      bluetoothManager.connectionLeft = await BluetoothConnection.toAddress(deviceLeft.address);
-      logger.i('Connected to ${deviceLeft.name}');
-      _updateStatus("Connected to ${deviceLeft.name}");
-
-      await Future.delayed(Duration(seconds: 5));
-
-      try {
-        bluetoothManager.connectionRight = await BluetoothConnection.toAddress(deviceRight.address);
-        logger.i('Connected to both devices');
-        _updateStatus("Connected to both devices");
-
-        await bluetoothManager.sendData('stop'); // Send stop to RIGHT
-      } catch (error) {
-        logger.e('Error connecting to RIGHT: $error');
-        _updateStatus("Error connecting to RIGHT: $error");
-      }
-    } catch (error) {
-      logger.e('Error connecting to LEFT: $error');
-      _updateStatus("Error connecting to LEFT: $error");
+    if (connectionRight != null && connectionRight!.isConnected) {
+      logger.i('Connection to RIGHT is active');
+    } else {
+      logger.e('Connection to RIGHT is not active');
+      return false;
     }
+    return true;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bluetooth Setup'),
-      ),
-      body: Center(
-        child: Text(_statusMessage),
-      ),
-    );
+  void dispose() {
+    connectionLeft?.dispose();
+    connectionRight?.dispose();
+    _leftDataController.close();
+    _rightDataController.close();
   }
 }

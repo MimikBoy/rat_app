@@ -45,35 +45,67 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     
     Logger().i('Battery button pressed');
     BluetoothManager btManager = BluetoothManager();
-    int connectionStatus = await btManager.connectToDevices();
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool hasBeenCalled = prefs.getBool('hasBeenCalled') ?? false;
+    if (await btManager.checkConnection()){
+      btManager.sendData('battery');
+    } else {
+      btManager.dispose();
+      int connectionStatus = await btManager.connectToDevices();
 
-    if (!hasBeenCalled){
       btManager.receiveData();
-      prefs.setBool('hasBeenCalled', true);
+
+      final service = FlutterBackgroundService();
+
+      setState(() {
+        // Update icon colors based on the connection status
+        leftBatteryColor = (connectionStatus & 1) != 0 ? greenButtons : Colors.white;
+        leftBatteryIcon = (connectionStatus & 1) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded;
+        rightBatteryColor = (connectionStatus & 2) != 0 ? greenButtons : Colors.white;
+        rightBatteryIcon = (connectionStatus & 2) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded; // Right connected
+      });
+
+      BluetoothManager().sendData('battery');
     }
 
-    String? deviceLeftAddress = prefs.getString('deviceLeftAddress');
-    String? deviceRightAddress = prefs.getString('deviceRightAddress');
-
-    final service = FlutterBackgroundService();
-    service.invoke('initializeBluetooth', {
-      'deviceLeftAddress': deviceLeftAddress,
-      'deviceRightAddress': deviceRightAddress,
-    });
-
-    BluetoothManager().sendData('battery');
-
-    setState(() {
-      // Update icon colors based on the connection status
-      leftBatteryColor = (connectionStatus & 1) != 0 ? greenButtons : Colors.white;
-      leftBatteryIcon = (connectionStatus & 1) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded;
-      rightBatteryColor = (connectionStatus & 2) != 0 ? greenButtons : Colors.white;
-      rightBatteryIcon = (connectionStatus & 2) != 0 ? Icons.battery_full_rounded : Icons.battery_unknown_rounded; // Right connected
-    });
+    
+    
   }
+
+  IconData getBatteryIcon(int batteryPercentage) {
+    if (batteryPercentage > 87) {
+      return Icons.battery_full_rounded;
+    } else if (batteryPercentage >= 75) {
+      return Icons.battery_6_bar_rounded;
+    } else if (batteryPercentage > 62) {
+      return Icons.battery_5_bar_rounded;
+    } else if (batteryPercentage >= 50) {
+      return Icons.battery_4_bar_rounded;
+    } else if (batteryPercentage > 37) {
+      return Icons.battery_3_bar_rounded;
+    } else if (batteryPercentage >= 25) {
+      return Icons.battery_2_bar_rounded;
+    } else if (batteryPercentage > 12) {
+      return Icons.battery_1_bar_rounded;
+    } else if (batteryPercentage > 0) {
+      return Icons.battery_0_bar_rounded;
+    } else {
+      return Icons.battery_alert_rounded;
+    }
+  }
+
+  void handleBatteryPercentage(int batteryPercentage, bool isLeft){
+    if (isLeft){
+      setState(() {
+        leftBatteryColor = batteryPercentage > 20 ? greenButtons : redButtons;
+        leftBatteryIcon = getBatteryIcon(batteryPercentage);
+      });
+    } else {
+      setState(() {
+        rightBatteryColor = batteryPercentage > 20 ? greenButtons : redButtons;
+        rightBatteryIcon = getBatteryIcon(batteryPercentage);
+      });
+    }
+  } 
 
   void _changeSettingsScreen(int index) {
     setState(() {
@@ -119,7 +151,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     Widget page;
     switch (screenIndex) {
       case 0:
-        page = RunnerHomePage();
+        page = RunnerHomePage(onBatteryPercentageUpdate: handleBatteryPercentage);
         changeToProfile();
         break;
       case 1:
@@ -134,7 +166,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         page = const EditParametersPage();
         break;
       default:
-        page = RunnerHomePage();
+        page = RunnerHomePage(onBatteryPercentageUpdate: handleBatteryPercentage);
     }
 
     return Scaffold(
@@ -186,7 +218,8 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
 }
 
 class RunnerHomePage extends StatefulWidget {
-  const RunnerHomePage({super.key});
+  final Function(int batteryPercentage, bool isLeft) onBatteryPercentageUpdate;
+  const RunnerHomePage({super.key, required this.onBatteryPercentageUpdate});
 
   @override
   State<RunnerHomePage> createState() => _RunnerHomePageState();
@@ -204,8 +237,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   String _timerText = 'Start';
   DateTime? _startTime;
   final service = FlutterBackgroundService();
-  List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'angleLeft', 'timeAngleLeft'];
-  List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'angleRight', 'timeAngleRight'];
+  List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'angleLeft', 'timeAngleLeft', 'alert', 'battery'];
+  List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'angleRight', 'timeAngleRight', 'alert', 'battery'];
 
   Map<String, List<double>> toStore = {};
 
@@ -436,13 +469,14 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
 
     btManager.leftDataStream.listen((data) {
       Logger().i('Left data: $data');
-      if (data.startsWith('alert')){
-        Logger().e('Alert: $data');
-        // playMetalPipe();
-        // alertDialogBox('Alert Left', data);
-        handleAlertNotification(data, 'Alert Left');
-        return;
-      }
+      // if (data.startsWith('alert')){
+      //   Logger().e('Alert: $data');
+      //   // playMetalPipe();
+      //   // alertDialogBox('Alert Left', data);
+      //   handleAlertNotification(data, 'Alert Left');
+      //   return;
+      // }
+      data = data.substring(0);
       List<String> dataString = data.substring(5).split("|");
       
       for (String dataPoint in dataString){
@@ -456,6 +490,13 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
           angleLeft.addAll(dataPoint.substring(leftNames[3].length).split(" "));
         } else if (dataPoint.startsWith(leftNames[4])){
           timeAngleLeft.addAll(dataPoint.substring(leftNames[4].length).split(" "));
+        } else if (dataPoint.startsWith(leftNames[5])){
+          Logger().e('Alert: ${dataPoint.substring(leftNames[5].length)}');
+          // playMetalPipe();
+          // alertDialogBox('Alert Left', dataPoint.substring(leftNames[5].length));
+          handleAlertNotification(dataPoint.substring(leftNames[5].length), 'Alert Left');
+        } else if (dataPoint.startsWith(leftNames[6])){
+          widget.onBatteryPercentageUpdate(int.parse(dataPoint.substring(leftNames[6].length)), true);
         }
       }
       Logger().i('Left data: $data');
@@ -464,24 +505,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     btManager.rightDataStream.listen((data) {
 
       Logger().i('Right data: $data');
-      if (data.startsWith('alert')){
-        Logger().e('Alert: $data');
-
-        // playMetalPipe();
-
-        // alertDialogBox('Alert Right', data);
-
-        handleAlertNotification(data, 'Alert Right');
-
-        if (data.contains('|')){
-          data = 'data ${data.substring(data.indexOf('|')-1)}';
-        } else {
-          return;
-        }
-      }  
-
+      data = data.substring(0);
       List<String> dataString = data.substring(5).split("|");
-
+      
       for (String dataPoint in dataString){
         if (dataPoint.startsWith(rightNames[0])){
           grfRight.addAll(dataPoint.substring(rightNames[0].length).split(" "));
@@ -493,6 +519,13 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
           angleRight.addAll(dataPoint.substring(rightNames[3].length).split(" "));
         } else if (dataPoint.startsWith(rightNames[4])){
           timeAngleRight.addAll(dataPoint.substring(rightNames[4].length).split(" "));
+        } else if (dataPoint.startsWith(rightNames[5])){
+          Logger().e('Alert: ${dataPoint.substring(rightNames[5].length)}');
+          // playMetalPipe();
+          // alertDialogBox('Alert Left', dataPoint.substring(leftNames[5].length));
+          handleAlertNotification(dataPoint.substring(rightNames[5].length), 'Alert Right');
+        } else if (dataPoint.startsWith(rightNames[6])){
+          widget.onBatteryPercentageUpdate(int.parse(dataPoint.substring(rightNames[6].length)), false);
         }
       }
 
