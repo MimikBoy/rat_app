@@ -8,7 +8,6 @@ import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SaveFileHandler {
-  
   Map<String, dynamic> data;
 
   SaveFileHandler() : data = {};
@@ -20,20 +19,29 @@ class SaveFileHandler {
     final file = File('${dir.path}/$fileName.pokko');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? runnerID = prefs.getInt('runnerID');
-    String encryptedData = "decrypted\n$runnerID\n${encryptData(jsonString, trainerID)}";
+    String encryptedData =
+        "decrypted\n$runnerID\n${encryptData(jsonString, trainerID)}";
     await file.writeAsString(encryptedData);
     Logger().i('File saved: ${file.path}');
   }
 
-    Future<void> saveDataTrainer(String fileName) async {
+  Future<void> saveDataTrainer(String fileName, String runnerID) async {
     // Logic to save the file
     String jsonString = jsonEncode(data);
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$fileName.json');
+    //path of the new directory
+    final newDirPath = '${dir.path}/newDirectory';
+
+    // Check if the directory exists, if not, create it
+    final newDir = Directory(newDirPath);
+    if (!await newDir.exists()) {
+      await newDir.create(recursive: true);
+      print('Directory created: $newDirPath');
+    }
+    final file = File('$newDirPath/$fileName.json');
     await file.writeAsString(jsonString);
     Logger().i('File saved: ${file.path}');
   }
-
 
   Future<void> delete(String fileName) async {
     final dir = await getApplicationDocumentsDirectory();
