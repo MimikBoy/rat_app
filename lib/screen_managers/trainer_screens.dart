@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'Trainer Screens/settings.dart';
-import 'Trainer Screens/upload.dart';
-import 'Trainer Screens/home.dart';
+import '../trainer_screens/trainer_settings.dart';
+import '../trainer_screens/trainer_upload.dart';
+import '../trainer_screens/trainer_home.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color seperatorColor = Color.fromARGB(100, 189, 189, 189);

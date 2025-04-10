@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart'; //used for uploading
 import 'package:path/path.dart' as p; //used for uploading
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:rat_app/file_management.dart'; //used for decrypting
+import 'package:rat_app/utils/file_management.dart'; //used for decrypting
 import 'dart:convert'; //also used for decrypting
 import 'package:logger/logger.dart';
 

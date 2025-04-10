@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'welcome_screen.dart';
+import 'start_screens/welcome_screen.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'runner_screens.dart';
-import 'bluetooth.dart';
-import 'trainer_screens.dart';
+import 'screen_managers/runner_screens.dart';
+import 'utils/bluetooth.dart';
+import 'screen_managers/trainer_screens.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -22,7 +22,7 @@ void main() async {
   
   // Initialize local notifications
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('icon/rat_icon.png');
+      AndroidInitializationSettings('@mipmap/ic_launcher');
   
   const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rat_app/bluetooth.dart';
+import 'package:rat_app/utils/bluetooth.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const BluetoothSetupPage()),
+                  MaterialPageRoute(builder: (context) => const Placeholder()),
                 );
               },
               child: const Text('Scan for Bluetooth Devices'),

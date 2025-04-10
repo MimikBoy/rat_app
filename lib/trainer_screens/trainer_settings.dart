@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:rat_app/file_management.dart';
+import 'package:rat_app/utils/file_management.dart';
 import 'package:flutter/services.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
