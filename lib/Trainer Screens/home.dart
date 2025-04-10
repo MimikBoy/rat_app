@@ -5,6 +5,7 @@ import 'package:rat_app/file_management.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:fl_chart/fl_chart.dart'; //used for the  graphs
 
 // import 'package:file_picker/file_picker.dart'; //used for uploading
 // import 'package:path/path.dart' as p; //used for uploading
@@ -138,6 +139,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
       return MapEntry(key, doubleList);
     });
   }
+
   //gets String from file
   Future<String> getRunData(String runnerID, String selectedRun) async {
     final dir = await getApplicationDocumentsDirectory();
@@ -151,6 +153,14 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
       Logger().w("File does not exist, returning empty string");
       return "";
     }
+  }
+
+  // Convert List<double> into FlSpot list for plotting
+  List<FlSpot> _createDataPoints(List<double> data) {
+    return List.generate(
+      data.length,
+      (index) => FlSpot(index.toDouble(), data[index]),
+    );
   }
 
   @override
