@@ -6,19 +6,19 @@ import 'trainer_start_screens.dart';
 // Used to create a page transition effect when navigating between screens.
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
-                transitionDuration: const Duration(milliseconds: 150),
-                reverseTransitionDuration: const Duration(milliseconds: 150),
-                pageBuilder: (context, animation, secondaryAnimation) => page,
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  const begin = Offset(1.0, 0.0);
-                  const end = Offset.zero;
-                  final tween = Tween(begin: begin, end: end);
-                  return SlideTransition(
-                    position: animation.drive(tween),
-                    child: child,
-                  );
-                },
-              );
+    transitionDuration: const Duration(milliseconds: 150),
+    reverseTransitionDuration: const Duration(milliseconds: 150),
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      const begin = Offset(1.0, 0.0);
+      const end = Offset.zero;
+      final tween = Tween(begin: begin, end: end);
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
 }
 
 // WelcomeScreen widget to display the welcome screen

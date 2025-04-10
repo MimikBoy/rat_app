@@ -71,9 +71,11 @@ class _TrainerDataScreenState extends State<TrainerDataScreen> {
               child: Padding(
               padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    widget.onContinue(1);
+                  onPressed: () async{
                     Navigator.popUntil(context, (route) => route.isFirst);
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    prefs.setInt('mode', 1);
+                    widget.onContinue(1);
                   },
                   style: ElevatedButton.styleFrom(
                     fixedSize: const Size(200, 60), // adjust width and height as needed

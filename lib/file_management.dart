@@ -139,4 +139,21 @@ class SaveFileHandler {
     }
     Logger().i("All local files cleared.");
   }
+
+  Future<List<String>> getAllRunnerFileNames(String runnerID) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final directory = Directory('${dir.path}/$runnerID');
+
+    if (await directory.exists()) {
+      final files = directory.listSync(); // List all files and directories
+      final fileNames = files
+          .whereType<File>() // Filter only files
+          .map((file) => file.path.split(Platform.pathSeparator).last) // Extract file names
+          .toList(); // Convert to a List<String>
+      fileNames.sort();
+      return fileNames;
+    } else {
+      throw Exception("Directory does not exist: ${dir.path}/$runnerID");
+    }
+  }
 }

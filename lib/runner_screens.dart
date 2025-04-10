@@ -307,9 +307,6 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       Logger().i('No data to save');
     }
     Logger().i('Data to save: $grfLeft, $grfRight, $timeGrfLeft, $timeGrfRight, $timeGroundLeft, $timeGroundRight, $angleLeft, $angleRight, $timeAngleLeft, $timeAngleRight');
-
-      if (!mounted) return;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     
     toStore = {
       "grfLeft": grfLeft.map((e) => double.parse(e)).toList(),
@@ -322,10 +319,10 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       "angleRight": angleRight.map((e) => double.parse(e)).toList(),
       "timeAngleLeft": timeAngleLeft.map((e) => double.parse(e)).toList(),
       "timeAngleRight": timeAngleRight.map((e) => double.parse(e)).toList(),
-      "runnerID": List.generate(1, (index) => prefs.getInt('runnerID')!.toDouble()),
     };
 
-
+    if (!mounted) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setInt('timerOn', 0);
 
@@ -373,6 +370,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     BluetoothManager btManager = BluetoothManager();
 
     btManager.leftDataStream.listen((data) {
+      
       Logger().i('Left data: $data');
     });
 
