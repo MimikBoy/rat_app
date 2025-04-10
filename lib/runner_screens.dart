@@ -7,6 +7,7 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'dart:async';
 import 'file_management.dart';
 import 'bluetooth.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color redButtons = Color.fromARGB(255, 211, 47, 47);
@@ -98,42 +99,32 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     });
   }
 
+  void changeToProfile(){
+    setState(() {
+      leadingIcon = IconButton(
+        icon: const Icon(Icons.circle_outlined, size: 30),
+        onPressed: () {
+          Logger().i('Profile button pressed');
+        },
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context){
     Widget page;
     switch (screenIndex) {
       case 0:
         page = RunnerHomePage();
-        setState(() {
-            leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
-              onPressed: () {
-                Logger().i('Profile button pressed');
-              },
-            );
-          });
+        changeToProfile();
         break;
       case 1:
         page = const RunnerDownloadPage();
-        setState(() {
-            leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
-              onPressed: () {
-                Logger().i('Profile button pressed');
-              },
-            );
-          });
+        changeToProfile();
         break;
       case 2:
         page = RunnerSettingsPage(changeSettingScreen: _changeSettingsScreen,);
-        setState(() {
-            leadingIcon = IconButton(
-              icon: const Icon(Icons.circle_outlined, size: 30),
-              onPressed: () {
-                Logger().i('Profile button pressed');
-              },
-            );
-          });
+        changeToProfile();
         break;
       case 3:
         page = const EditParametersPage();
@@ -209,6 +200,9 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   String _timerText = 'Start';
   DateTime? _startTime;
   final service = FlutterBackgroundService();
+  List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'angleLeft', 'timeAngleLeft'];
+  List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'angleRight', 'timeAngleRight'];
+
   Map<String, List<double>> toStore = {};
 
   List<String> angleLeft = [], angleRight = [], timeAngleLeft = [], timeAngleRight = [],
@@ -256,7 +250,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       int imuToKnee = prefs.getInt('imuToKnee') ?? 0;
       int kneeToHip = prefs.getInt('kneeToHip') ?? 0;
 
-      BluetoothManager().sendData('start $weight $imuToKnee $kneeToHip');
+      BluetoothManager().sendData('start $weight $kneeToHip $imuToKnee');
 
       await _countdown();
 
@@ -303,22 +297,31 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void stopTimer() async {
     _timer?.cancel();
 
-    if (grfLeft == [] && grfRight == [] && timeGrfLeft == [] && timeGrfRight == [] && timeGroundLeft == [] && timeGroundRight == [] && angleLeft == [] && angleRight == [] && timeAngleLeft == [] && timeAngleRight == []) {
+    if (grfLeft.isEmpty &&
+      grfRight.isEmpty &&
+      timeGrfLeft.isEmpty &&
+      timeGrfRight.isEmpty &&
+      timeGroundLeft.isEmpty &&
+      timeGroundRight.isEmpty &&
+      angleLeft.isEmpty &&
+      angleRight.isEmpty &&
+      timeAngleLeft.isEmpty &&
+      timeAngleRight.isEmpty) {
       Logger().i('No data to save');
     }
-    Logger().i('Data to save: $grfLeft, $grfRight, $timeGrfLeft, $timeGrfRight, $timeGroundLeft, $timeGroundRight, $angleLeft, $angleRight, $timeAngleLeft, $timeAngleRight');
+    Logger().i('Data to save: grfL: $grfLeft\n grfR: $grfRight\n grfTL: $timeGrfLeft\n grfTR: $timeGrfRight\n groundL: $timeGroundLeft\n groundR: $timeGroundRight\n angL: $angleLeft\n angR: $angleRight\n angTR: $timeAngleLeft\n angTL: $timeAngleRight');
     
     toStore = {
-      "grfLeft": grfLeft.map((e) => double.parse(e)).toList(),
-      "grfRight": grfRight.map((e) => double.parse(e)).toList(),
-      "timeGrfLeft": timeGrfLeft.map((e) => double.parse(e)).toList(),
-      "timeGrfRight": timeGrfRight.map((e) => double.parse(e)).toList(),
-      "timeGroundLeft": timeGroundLeft.map((e) => double.parse(e)).toList(),
-      "timeGroundRight": timeGroundRight.map((e) => double.parse(e)).toList(),
-      "angleLeft": angleLeft.map((e) => double.parse(e)).toList(),
-      "angleRight": angleRight.map((e) => double.parse(e)).toList(),
-      "timeAngleLeft": timeAngleLeft.map((e) => double.parse(e)).toList(),
-      "timeAngleRight": timeAngleRight.map((e) => double.parse(e)).toList(),
+      leftNames[0]: grfLeft.map((e) => double.parse(e)).toList(),
+      rightNames[0]: grfRight.map((e) => double.parse(e)).toList(),
+      leftNames[1]: timeGrfLeft.map((e) => double.parse(e)).toList(),
+      rightNames[1]: timeGrfRight.map((e) => double.parse(e)).toList(),
+      leftNames[2]: timeGroundLeft.map((e) => double.parse(e)).toList(),
+      rightNames[2]: timeGroundRight.map((e) => double.parse(e)).toList(),
+      leftNames[3]: angleLeft.map((e) => double.parse(e)).toList(),
+      rightNames[3]: angleRight.map((e) => double.parse(e)).toList(),
+      leftNames[4]: timeAngleLeft.map((e) => double.parse(e)).toList(),
+      rightNames[4]: timeAngleRight.map((e) => double.parse(e)).toList(),
     };
 
     if (!mounted) return;
@@ -370,14 +373,102 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     BluetoothManager btManager = BluetoothManager();
 
     btManager.leftDataStream.listen((data) {
+      Logger().i('Left data: $data');
+      if (data.startsWith('alert')){
+        Logger().e('Alert: $data');
+
+        final player = AudioPlayer();
+        player.play(AssetSource('sound_effects/metal-pipe.mp3'));
+
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Alert Left: $data'),
+                content: Text(data),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+
+        return;
+      }
+      List<String> dataString = data.substring(5).split("|");
       
+      for (String dataPoint in dataString){
+        if (dataPoint.startsWith(leftNames[0])){
+          grfLeft.addAll(dataPoint.substring(leftNames[0].length).split(" "));
+        } else if (dataPoint.startsWith(leftNames[1])){
+          timeGrfLeft.addAll(dataPoint.substring(leftNames[1].length).split(" "));
+        } else if (dataPoint.startsWith(leftNames[2])){
+          timeGroundLeft.addAll(dataPoint.substring(leftNames[2].length).split(" "));
+        } else if (dataPoint.startsWith(leftNames[3])){
+          angleLeft.addAll(dataPoint.substring(leftNames[3].length).split(" "));
+        } else if (dataPoint.startsWith(leftNames[4])){
+          timeAngleLeft.addAll(dataPoint.substring(leftNames[4].length).split(" "));
+        }
+      }
       Logger().i('Left data: $data');
     });
 
     btManager.rightDataStream.listen((data) {
-      setState(() {
-        Logger().i('Right data: $data');
-      });
+
+      Logger().i('Right data: $data');
+      if (data.startsWith('alert')){
+        Logger().e('Alert: $data');
+
+        final player = AudioPlayer();
+        player.play(AssetSource('sound_effects/metal-pipe.mp3'));
+
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Alert Right: $data'),
+                content: Text(data),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+
+        return;
+      }
+
+      List<String> dataString = data.substring(5).split("|");
+
+      for (String dataPoint in dataString){
+        if (dataPoint.startsWith(rightNames[0])){
+          grfRight.addAll(dataPoint.substring(rightNames[0].length).split(" "));
+        } else if (dataPoint.startsWith(rightNames[1])){
+          timeGrfRight.addAll(dataPoint.substring(rightNames[1].length).split(" "));
+        } else if (dataPoint.startsWith(rightNames[2])){
+          timeGroundRight.addAll(dataPoint.substring(rightNames[2].length).split(" "));
+        } else if (dataPoint.startsWith(rightNames[3])){
+          angleRight.addAll(dataPoint.substring(rightNames[3].length).split(" "));
+        } else if (dataPoint.startsWith(rightNames[4])){
+          timeAngleRight.addAll(dataPoint.substring(rightNames[4].length).split(" "));
+        }
+      }
+
+      Logger().i('Right data: $data');
     });
 
     _checkTimer();

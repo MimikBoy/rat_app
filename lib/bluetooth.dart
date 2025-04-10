@@ -75,7 +75,7 @@ class BluetoothManager {
     
     bool permissionsGranted = await requestBluetoothPermissions();
     if (permissionsGranted) {
-      await connectToDevices();
+      logger.i("Bluetooth permissions granted.");
     } else {
       logger.e("Bluetooth permissions not granted.");
     }
@@ -98,12 +98,12 @@ class BluetoothManager {
     int connectionStatus = 0;
 
     BluetoothDevice? deviceLeft = devices.firstWhere(
-      (d) => d.name == "LEFT_ESP32",
+      (d) => d.name == "LEFT_PICO",
       orElse: () => BluetoothDevice(address: "", name: "Unknown"),
     );
 
     BluetoothDevice? deviceRight = devices.firstWhere(
-      (d) => d.name == "RIGHT_ESP32",
+      (d) => d.name == "RIGHT_PICO",
       orElse: () => BluetoothDevice(address: "", name: "Unknown"),
     );
 
@@ -156,7 +156,8 @@ class _BluetoothSetupPageState extends State<BluetoothSetupPage> {
   Future<void> _initializeBluetooth() async {
     bool permissionsGranted = await _requestBluetoothPermissions();
     if (permissionsGranted) {
-      _connectToDevices();
+      logger.i("Bluetooth permissions granted.");
+      //_connectToDevices();
     } else {
       logger.e("Bluetooth permissions not granted.");
     }
@@ -181,12 +182,12 @@ class _BluetoothSetupPageState extends State<BluetoothSetupPage> {
     List<BluetoothDevice> devices = await FlutterBluetoothSerial.instance.getBondedDevices();
 
     BluetoothDevice? deviceLeft = devices.firstWhere(
-      (d) => d.name == "LEFT_ESP32",
+      (d) => d.name == "LEFT_PICO",
       orElse: () => BluetoothDevice(address: "", name: "Unknown"),
     );
 
     BluetoothDevice? deviceRight = devices.firstWhere(
-      (d) => d.name == "RIGHT_ESP32",
+      (d) => d.name == "RIGHT_PICO",
       orElse: () => BluetoothDevice(address: "", name: "Unknown"),
     );
 
