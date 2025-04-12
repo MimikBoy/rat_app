@@ -37,13 +37,55 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   String _timerText = 'Start';
   DateTime? _startTime;
   final service = FlutterBackgroundService();
-  List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'angleLeft', 'timeAngleLeft', 'alert', 'battery'];
-  List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'angleRight', 'timeAngleRight', 'alert', 'battery'];
+  List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'groundContactLeft', 'angleLeft', 'timeAngleLeft', 'alert', 'battery'];
+  List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'groundContactRight', 'angleRight', 'timeAngleRight', 'alert', 'battery'];
 
-  Map<String, List<double>> toStore = {};
+  Map<String, List<double>> toStore = {
+    'grfLeft': [],
+    'grfRight': [],
+    'timeGrfLeft': [],
+    'timeGrfRight': [],
+    'timeGroundLeft': [],
+    'timeGroundRight': [],
+    'angleLeft': [],
+    'angleRight': [],
+    'timeAngleLeft': [],
+    'timeAngleRight': [],
+  };
 
-  List<String> angleLeft = ['3'], angleRight = ['2'], timeAngleLeft = ['3'], timeAngleRight = ['4'],
-              grfLeft = ['5'], grfRight = ['6'], timeGrfLeft = ['7'], timeGrfRight = ['8'], timeGroundLeft = ['9'], timeGroundRight = ['10'];
+
+
+  List<List<double>> dataPointsToSave = List.generate(10, (_) => []);
+  List<List<String>> dataPointsRecieved = List.generate(12, (_) => []);
+
+  List<List<double>> convertToDouble(List<List<String>> dataPointsRecievedTemp) {
+    int minLength = dataPointsRecievedTemp[0].length < dataPointsRecievedTemp[6].length ? dataPointsRecievedTemp[0].length : dataPointsRecievedTemp[6].length;
+    dataPointsRecievedTemp[0] = dataPointsRecievedTemp[0].sublist(0, minLength);
+    dataPointsRecievedTemp[6] = dataPointsRecievedTemp[6].sublist(0, minLength);
+    List<List<double>> temp = List.generate(12, (_) => []);
+    for (int i = 0; i < dataPointsRecievedTemp.length; i++) {
+      temp[i] = dataPointsRecieved[i].map((s) => double.parse(s)).toList();
+      if (i == 6) {
+        temp[i] = List.generate(
+          minLength, 
+          (index) => temp[0][index] + temp[i][index]
+        );
+      }
+    }
+
+    temp [0] = List.generate(
+      minLength, 
+      (index) => temp[6][index]*temp[3][index]
+    );
+    temp [6] = List.generate(
+      minLength, 
+      (index) => temp[6][index]*temp[9][index]
+    );
+
+    temp.removeAt(3);
+    temp.removeAt(9);
+    return temp;
+  }
 
   Future<void> _countdown() async{
     if (!mounted) return;
@@ -134,32 +176,18 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   void stopTimer() async {
     _timer?.cancel();
 
-    if (grfLeft.isEmpty &&
-      grfRight.isEmpty &&
-      timeGrfLeft.isEmpty &&
-      timeGrfRight.isEmpty &&
-      timeGroundLeft.isEmpty &&
-      timeGroundRight.isEmpty &&
-      angleLeft.isEmpty &&
-      angleRight.isEmpty &&
-      timeAngleLeft.isEmpty &&
-      timeAngleRight.isEmpty) {
+    if (dataPointsRecieved.isEmpty) {
       Logger().i('No data to save');
     }
-    Logger().i('Data to save: grfL: $grfLeft\n grfR: $grfRight\n grfTL: $timeGrfLeft\n grfTR: $timeGrfRight\n groundL: $timeGroundLeft\n groundR: $timeGroundRight\n angL: $angleLeft\n angR: $angleRight\n angTR: $timeAngleLeft\n angTL: $timeAngleRight');
+    Logger().i('Data to save: grfL: ${dataPointsToSave[0]}\n grfR: ${dataPointsToSave[1]}\n grfTL: ${dataPointsToSave[2]}\n grfTR: ${dataPointsToSave[3]}\n groundL: ${dataPointsToSave[4]}\n groundR: ${dataPointsToSave[5]}\n angL: ${dataPointsToSave[6]}\n angR: ${dataPointsToSave[7]}\n angTL: ${dataPointsToSave[8]}\n angTR: ${dataPointsToSave[9]}');
     
-    toStore = {
-      leftNames[0]: grfLeft.map((e) => double.parse(e)).toList(),
-      rightNames[0]: grfRight.map((e) => double.parse(e)).toList(),
-      leftNames[1]: timeGrfLeft.map((e) => double.parse(e)).toList(),
-      rightNames[1]: timeGrfRight.map((e) => double.parse(e)).toList(),
-      leftNames[2]: timeGroundLeft.map((e) => double.parse(e)).toList(),
-      rightNames[2]: timeGroundRight.map((e) => double.parse(e)).toList(),
-      leftNames[3]: angleLeft.map((e) => double.parse(e)).toList(),
-      rightNames[3]: angleRight.map((e) => double.parse(e)).toList(),
-      leftNames[4]: timeAngleLeft.map((e) => double.parse(e)).toList(),
-      rightNames[4]: timeAngleRight.map((e) => double.parse(e)).toList(),
-    };
+    dataPointsToSave = convertToDouble(dataPointsRecieved);
+
+    int i = 0;
+    toStore.forEach((key, value) {
+      toStore[key] = dataPointsToSave[i];
+      i++;
+    });
 
     if (!mounted) return;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -280,23 +308,18 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       List<String> dataString = data.substring(5).split("|");
       
       for (String dataPoint in dataString){
-        if (dataPoint.startsWith(leftNames[0])){
-          grfLeft.addAll(dataPoint.substring(leftNames[0].length).split(" "));
-        } else if (dataPoint.startsWith(leftNames[1])){
-          timeGrfLeft.addAll(dataPoint.substring(leftNames[1].length).split(" "));
-        } else if (dataPoint.startsWith(leftNames[2])){
-          timeGroundLeft.addAll(dataPoint.substring(leftNames[2].length).split(" "));
-        } else if (dataPoint.startsWith(leftNames[3])){
-          angleLeft.addAll(dataPoint.substring(leftNames[3].length).split(" "));
-        } else if (dataPoint.startsWith(leftNames[4])){
-          timeAngleLeft.addAll(dataPoint.substring(leftNames[4].length).split(" "));
-        } else if (dataPoint.startsWith(leftNames[5])){
-          Logger().e('Alert: ${dataPoint.substring(leftNames[5].length)}');
+        for (int i = 0; i < (dataPointsRecieved.length/2).toInt(); i++){
+          if (dataPoint.startsWith(leftNames[i])){
+            dataPointsRecieved[i].add(dataPoint.substring(leftNames[i].length));
+          }
+        }
+        if (dataPoint.startsWith(leftNames[6])){
+          Logger().e('Alert: ${dataPoint.substring(leftNames[6].length)}');
           // playMetalPipe();
           // alertDialogBox('Alert Left', dataPoint.substring(leftNames[5].length));
-          handleAlertNotification(dataPoint.substring(leftNames[5].length), 'Alert Left');
-        } else if (dataPoint.startsWith(leftNames[6])){
-          widget.onBatteryPercentageUpdate(int.parse(dataPoint.substring(leftNames[6].length)), true);
+          handleAlertNotification(dataPoint.substring(leftNames[6].length), 'Alert Left');
+        } else if (dataPoint.startsWith(leftNames[7])){
+          widget.onBatteryPercentageUpdate(int.parse(dataPoint.substring(leftNames[7].length)), true);
         }
       }
       Logger().i('Left data: $data');
@@ -309,23 +332,18 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       List<String> dataString = data.substring(5).split("|");
       
       for (String dataPoint in dataString){
-        if (dataPoint.startsWith(rightNames[0])){
-          grfRight.addAll(dataPoint.substring(rightNames[0].length).split(" "));
-        } else if (dataPoint.startsWith(rightNames[1])){
-          timeGrfRight.addAll(dataPoint.substring(rightNames[1].length).split(" "));
-        } else if (dataPoint.startsWith(rightNames[2])){
-          timeGroundRight.addAll(dataPoint.substring(rightNames[2].length).split(" "));
-        } else if (dataPoint.startsWith(rightNames[3])){
-          angleRight.addAll(dataPoint.substring(rightNames[3].length).split(" "));
-        } else if (dataPoint.startsWith(rightNames[4])){
-          timeAngleRight.addAll(dataPoint.substring(rightNames[4].length).split(" "));
-        } else if (dataPoint.startsWith(rightNames[5])){
-          Logger().e('Alert: ${dataPoint.substring(rightNames[5].length)}');
+        for (int i = (dataPointsRecieved.length/2).toInt() ; i < dataPointsRecieved.length; i++){
+          if (dataPoint.startsWith(rightNames[i])){
+            dataPointsRecieved[i].add(dataPoint.substring(rightNames[i].length));
+          }
+        }
+        if (dataPoint.startsWith(rightNames[6])){
+          Logger().e('Alert: ${dataPoint.substring(rightNames[6].length)}');
           // playMetalPipe();
           // alertDialogBox('Alert Left', dataPoint.substring(leftNames[5].length));
-          handleAlertNotification(dataPoint.substring(rightNames[5].length), 'Alert Right');
-        } else if (dataPoint.startsWith(rightNames[6])){
-          widget.onBatteryPercentageUpdate(int.parse(dataPoint.substring(rightNames[6].length)), false);
+          handleAlertNotification(dataPoint.substring(rightNames[6].length), 'Alert Right');
+        } else if (dataPoint.startsWith(rightNames[7])){
+          widget.onBatteryPercentageUpdate(int.parse(dataPoint.substring(rightNames[7].length)), true);
         }
       }
 
