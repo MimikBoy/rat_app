@@ -91,7 +91,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     if (!mounted) return;
       setState(() {
         _buttonColor = Colors.orange;
-        _timerText = 'Please stand still';
+        _timerText = 'Please stand still and straight';
       });
       for (int i = 0; i < timeToStart; i++) {
         _isCountingDown = true;
