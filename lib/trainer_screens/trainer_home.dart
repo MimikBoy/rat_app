@@ -34,11 +34,13 @@ class TrainerHomePage extends StatefulWidget {
 
 class _TrainerHomePageState extends State<TrainerHomePage> {
   List<String> knownRunners = [];
+  final bool useTestData = true; //used for testing data
 
   void getRunners() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       knownRunners = prefs.getStringList('runnerIDList') ?? [];
+      useTestData ? knownRunners.add("TriangleTestRun") : null;
     });
   }
 
@@ -104,6 +106,7 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   int currentIndex = 0;
   String selectedRun = '';
   Map<String, List<double>> runnerMap = {};
+  final bool useTestData = true; //used for testing data
 
   void fetchRunNames(String runnerID) async {
     List<String> fetchedRunNames = await SaveFileHandler()
@@ -125,8 +128,37 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch the runs data for the specific runnerID
-    fetchRunNames(widget.runnerID);
+    if (useTestData) {
+      // mock triangle data
+      runnerMap = {
+        "timeGrfLeft": List.generate(100, (i) => i.toDouble()),
+        "grfLeft": List.generate(
+          100,
+          (i) => (i % 20 < 10 ? i % 10 : 10 - (i % 10)).toDouble(),
+        ),
+        "timeGrfRight": List.generate(100, (i) => i.toDouble()),
+        "grfRight": List.generate(
+          100,
+          (i) => (i % 25 < 13 ? i % 13 : 13 - (i % 13)).toDouble(),
+        ),
+        "timeAngleLeft": List.generate(100, (i) => i.toDouble()),
+        "angleLeft": List.generate(
+          100,
+          (i) => (i % 30 < 15 ? i % 15 : 15 - (i % 15)).toDouble(),
+        ),
+        "timeAngleRight": List.generate(100, (i) => i.toDouble()),
+        "angleRight": List.generate(
+          100,
+          (i) => (i % 17 < 9 ? i % 9 : 9 - (i % 9)).toDouble(),
+        ),
+      };
+      setState(() {
+        runNames = ["TriangleTestRun"];
+        selectedRun = "TriangleTestRun";
+      });
+    } else {
+      fetchRunNames(widget.runnerID);
+    }
   }
 
   //Turns the jsonstring from the datafile and turns it into a map
@@ -159,10 +191,22 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
 
   // Convert List<double> into FlSpot list for plotting
   List<FlSpot> _createDataPoints(List<double> x, List<double> y) {
-    return List.generate(x.length, (index) => FlSpot(x[index], y[index]));
+    List<FlSpot> output = List.generate(
+      x.length,
+      (index) => FlSpot(x[index], y[index]),
+    );
+    return output;
   }
 
-  @override
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Column(
+  //     children: [
+  //       AspectRatio(aspectRatio: 2.0, child: LineChart(LineChartData())),
+  //     ],
+  //   );
+  // }
+
   Widget build(BuildContext context) {
     return runNames.isEmpty
         ? const Center(child: CircularProgressIndicator())
@@ -235,23 +279,33 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
               ),
             ),
             const Divider(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            AspectRatio(
+              aspectRatio: 1.5,
               child: LineChart(
                 LineChartData(
                   gridData: FlGridData(show: true),
                   titlesData: FlTitlesData(show: true),
                   borderData: FlBorderData(show: true),
                   minX: 0,
-                  maxX: runnerMap["timeGrfLeft"]!.reduce(
-                    (a, b) => a > b ? a : b,
-                  ),
-                  minY: runnerMap["grfLeft"]!.reduce(
-                    (a, b) => a < b ? a : b,
-                  ), //could also have manual min/max to filter out spikes, sorta
-                  maxY: runnerMap["grfLeft"]!.reduce((a, b) => a > b ? a : b),
+                  maxX:
+                      useTestData
+                          ? 100
+                          : runnerMap["timeGrfLeft"]!.reduce(
+                            (a, b) => a > b ? a : b,
+                          ),
+                  minY:
+                      useTestData
+                          ? 0
+                          : runnerMap["grfLeft"]!.reduce(
+                            (a, b) => a < b ? a : b,
+                          ), //could also have manual min/max to filter out spikes, sorta
+                  maxY:
+                      useTestData
+                          ? 15
+                          : runnerMap["grfLeft"]!.reduce((a, b) => a > b ? a : b),
                   lineBarsData: [
                     LineChartBarData(
+                      show: true,
                       spots: _createDataPoints(
                         runnerMap["timeGrfLeft"]!,
                         runnerMap["grfLeft"]!,
@@ -275,21 +329,20 @@ class _DataVisualizationPageState extends State<DataVisualizationPage> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            AspectRatio(aspectRatio: 1.5,
               child: LineChart(
                 LineChartData(
                   gridData: FlGridData(show: true),
                   titlesData: FlTitlesData(show: true),
                   borderData: FlBorderData(show: true),
                   minX: 0,
-                  maxX: runnerMap["timeAngleLeft"]!.reduce(
+                  maxX: useTestData ? 100 : runnerMap["timeAngleLeft"]!.reduce(
                     (a, b) => a > b ? a : b,
                   ),
-                  minY: runnerMap["angleLeft"]!.reduce(
+                  minY: useTestData ? 0 : runnerMap["angleLeft"]!.reduce(
                     (a, b) => a < b ? a : b,
                   ), //these angles could also have manual min/max
-                  maxY: runnerMap["angleLeft"]!.reduce((a, b) => a > b ? a : b),
+                  maxY: useTestData ? 15 : runnerMap["angleLeft"]!.reduce((a, b) => a > b ? a : b),
                   lineBarsData: [
                     LineChartBarData(
                       spots: _createDataPoints(
