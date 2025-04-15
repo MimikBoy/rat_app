@@ -5,6 +5,7 @@ import 'package:rat_app/utils/file_management.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter/services.dart';
 
+/// A widget that displays a list of settings for the runner app.
 class RunnerSettingsPage extends StatefulWidget {
   final Function(int)? changeSettingScreen;
   const RunnerSettingsPage({super.key, this.changeSettingScreen});
@@ -23,6 +24,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
     'About',
   ];
 
+  /// Loads the runner ID from SharedPreferences and updates the UI.
   Future<void> _loadSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     runnerID = prefs.getInt('runnerID') ?? 0;
@@ -71,7 +73,7 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
               } else if (index == 2) {
                 Logger().i('About button pressed');
                 if (widget.changeSettingScreen != null) {
-                  widget.changeSettingScreen!(4); //TODO this doesn't work
+                  widget.changeSettingScreen!(4); 
                 } else {
                   Logger().e('changeSettingScreen is null');
                 }
@@ -129,7 +131,16 @@ class _RunnerSettingsPageState extends State<RunnerSettingsPage> {
   }
 }
 
-// Field Decoration for integer input fields
+/// Creates a page transition effect when navigating between screens.
+///
+/// This function returns a [PageRouteBuilder] that slides the new page
+/// from the right to the left.
+///
+/// Parameters: 
+/// - [page]: The widget to navigate to.
+/// 
+/// Returns:
+/// - A [PageRouteBuilder] that defines the transition animation.
 InputDecoration fieldDecoration(String hintText, String suffixText, bool showFieldError) {
   return InputDecoration(
     hintText: hintText,
@@ -139,6 +150,9 @@ InputDecoration fieldDecoration(String hintText, String suffixText, bool showFie
     errorText: showFieldError ? 'Please enter a valid number' : null,
   );
 }
+
+/// EditParametersPage is a StatefulWidget that allows the user to edit their parameters. Look at the parameters page on the runner
+/// start screen for more details.
 class EditParametersPage extends StatefulWidget {
   const EditParametersPage({super.key});
 

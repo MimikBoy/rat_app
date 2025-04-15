@@ -5,7 +5,16 @@ import 'package:logger/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Field Decoration for integer input fields
+/// Creates a page transition effect when navigating between screens.
+///
+/// This function returns a [PageRouteBuilder] that slides the new page
+/// from the right to the left.
+///
+/// Parameters: 
+/// - [page]: The widget to navigate to.
+/// 
+/// Returns:
+/// - A [PageRouteBuilder] that defines the transition animation.
 InputDecoration fieldDecoration(String hintText, String suffixText, bool showFieldError) {
   return InputDecoration(
     hintText: hintText,
@@ -16,7 +25,13 @@ InputDecoration fieldDecoration(String hintText, String suffixText, bool showFie
   );
 }
 
-// DataScreen widget to collect user data
+/// DataScreen is a StatefulWidget that collects user data for the app. It also saves the data to shared preferences.
+///
+/// Parameters: 
+/// - [onContinue]: A callback function that is triggered when the user presses the "Continue" button.
+/// 
+/// Returns:
+/// - [Scaffold] widget that contains the form for user data input.
 class DataScreen extends StatefulWidget {
   final void Function(int) onContinue;
   const DataScreen({super.key, required this.onContinue});
@@ -26,6 +41,7 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
+  // Used to check if the form is valid
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _imuToKneeController = TextEditingController();
   final TextEditingController _kneeToHipController = TextEditingController();
@@ -40,9 +56,8 @@ class _DataScreenState extends State<DataScreen> {
     _kneeToHipController.text.isNotEmpty &&
     _trainerIDController.text.isNotEmpty;
   
-
+  // Dispose the controllers when the widget is removed from the widget tree
   @override
-
   void dispose() {
     _weightController.dispose();
     _imuToKneeController.dispose();
@@ -178,6 +193,7 @@ class _DataScreenState extends State<DataScreen> {
                 ? () async {
                   Logger().i('Continue button pressed');
                   Navigator.popUntil(context, (route) => route.isFirst);
+                  // Save the data to shared preferences
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   prefs.setInt('weight', 76);
                   prefs.setInt('imuToKnee', 41);
@@ -218,6 +234,7 @@ class _DataScreenState extends State<DataScreen> {
                 ? () async {
                   Logger().i('Continue button pressed');  
                   Navigator.popUntil(context, (route) => route.isFirst);
+                  // Save the data to shared preferences
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   prefs.setInt('weight', int.parse(_weightController.text));
                   prefs.setInt('imuToKnee', int.parse(_imuToKneeController.text));
