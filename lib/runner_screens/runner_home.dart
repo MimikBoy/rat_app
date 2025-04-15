@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:rat_app/utils/bluetooth.dart';
 import 'package:rat_app/utils/file_management.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'dart:math';
 
 const Color textColor = Color.fromARGB(255, 224, 224, 224);
 const Color redButtons = Color.fromARGB(255, 211, 47, 47);
@@ -49,7 +50,10 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
   List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'groundContactLeft', 'angleLeft', 'timeAngleLeft', 'alert', 'battery'];
   List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'groundContactRight', 'angleRight', 'timeAngleRight', 'alert', 'battery'];
   List<List<double>> dataPointsToSave = List.generate(10, (_) => []);
-  List<List<String>> dataPointsRecieved = List.generate(12, (_) => []);
+  List<List<String>> dataPointsRecieved = List.generate(12, (_) {
+    final random = Random();
+    return List.generate(2, (_) => (random.nextInt(100) + 1).toString());
+  });
 
   Map<String, List<double>> toStore = {
     'grfLeft': [],
@@ -307,6 +311,10 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     _timer?.cancel();
     super.dispose();
   }
+
+  // void testDataRecieve(){
+    
+  // }
 
   /// Initializes the Bluetooth manager and sets up listeners for left and right data streams.
   @override
