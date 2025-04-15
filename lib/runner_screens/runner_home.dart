@@ -16,7 +16,13 @@ const Color greyButtons = Color.fromARGB(255, 158, 158, 158);
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-
+/// A widget that manages the navigation and state of the Runner app.
+///
+/// Parameters:
+/// - [onBatteryPercentageUpdate]: A callback function that is triggered when the battery percentage is updated.
+/// 
+/// Returns:
+/// - The [RunnerHomePage].
 class RunnerHomePage extends StatefulWidget {
   final Function(int batteryPercentage, bool isLeft) onBatteryPercentageUpdate;
   const RunnerHomePage({super.key, required this.onBatteryPercentageUpdate});
@@ -28,17 +34,22 @@ class RunnerHomePage extends StatefulWidget {
 class _RunnerHomePageState extends State<RunnerHomePage> {
 
   Color defaultButtonColor = Color.fromARGB(255, 76, 175, 80);
-
   Color _buttonColor = Color.fromARGB(255, 76, 175, 80);
-  final timeToStart = 5;
+
   bool _isCountingDown = false;
+  bool _isDialogVisible = false;
+
+  final timeToStart = 5;
   Timer? _timer;
   Widget _buttonChild = const Icon(Icons.play_arrow_rounded, size: 100, color: Color.fromARGB(255, 224, 224, 224));
   String _timerText = 'Start';
   DateTime? _startTime;
   final service = FlutterBackgroundService();
+
   List<String> leftNames = ['grfLeft', 'timeGrfLeft', 'timeGroundLeft', 'groundContactLeft', 'angleLeft', 'timeAngleLeft', 'alert', 'battery'];
   List<String> rightNames = ['grfRight', 'timeGrfRight', 'timeGroundRight', 'groundContactRight', 'angleRight', 'timeAngleRight', 'alert', 'battery'];
+  List<List<double>> dataPointsToSave = List.generate(10, (_) => []);
+  List<List<String>> dataPointsRecieved = List.generate(12, (_) => []);
 
   Map<String, List<double>> toStore = {
     'grfLeft': [],
@@ -53,11 +64,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     'timeAngleRight': [],
   };
 
-
-
-  List<List<double>> dataPointsToSave = List.generate(10, (_) => []);
-  List<List<String>> dataPointsRecieved = List.generate(12, (_) => []);
-
+  /// Converts the received data points from String to double and processes them.
   List<List<double>> convertToDouble(List<List<String>> dataPointsRecievedTemp) {
     int minLength = dataPointsRecievedTemp[0].length < dataPointsRecievedTemp[6].length ? dataPointsRecievedTemp[0].length : dataPointsRecievedTemp[6].length;
     dataPointsRecievedTemp[0] = dataPointsRecievedTemp[0].sublist(0, minLength);
@@ -87,11 +94,12 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     return temp;
   }
 
+  /// Handles the countdown before starting the timer.
   Future<void> _countdown() async{
     if (!mounted) return;
       setState(() {
         _buttonColor = Colors.orange;
-        _timerText = 'Please stand still';
+        _timerText = 'Please stand straight';
       });
       for (int i = 0; i < timeToStart; i++) {
         _isCountingDown = true;
@@ -113,6 +121,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       }
   }
 
+  /// Sets the button to the stop state.
   void _setToStop(){
     if (!mounted) return;
     setState((){
@@ -121,6 +130,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     });
   }
 
+  /// Starts or stops the timer based on the button state, and sends start signal through bluetooth.
   void _startStopButton()  async{
     if (_buttonColor == defaultButtonColor) {
       Logger().i('Button color changed to red');
@@ -152,6 +162,8 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     _isCountingDown = false;
   }
 
+  /// Starts the on screen timer and updates the timer text every 30 milliseconds. If the user changes screens,
+  /// the timer will be saved and the screen will be updated.
   void _startTimer(int alreadyStarted) async{
     
     _timer?.cancel();
@@ -173,6 +185,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     });
   }
   
+  /// Stops the timer and saves the data points to a file. If no data points are received, it will not save anything.
   void stopTimer() async {
     _timer?.cancel();
 
@@ -198,12 +211,15 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     currentList.add(_startTime.toString().substring(0, _startTime.toString().length - 4));
     await prefs.setStringList('fileNames', currentList);
 
-    int trainerID = prefs.getInt('trainerID') ?? 0;  //should this be an await?
+    int trainerID = prefs.getInt('trainerID') ?? 0;
     SaveFileHandler fileHandler = SaveFileHandler();
     fileHandler.data = toStore;
     await fileHandler.saveData(_startTime.toString().substring(0, _startTime.toString().length - 4), trainerID);
+    dataPointsToSave = List.generate(10, (_) => []);
+    dataPointsRecieved = List.generate(12, (_) => []);
   }
 
+  /// Formats the elapsed time into a string.
   String _formatTime(Duration elapsed) {
     final hours = elapsed.inHours.toString().padLeft(2, '0');
     final minutes = elapsed.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -213,6 +229,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     return '$hours:$minutes:$seconds.$milliseconds';
   }
 
+  /// Checks if the timer is already running when the app is opened. If it is, it will start the timer again.
   Future<void> _checkTimer() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final timerOn = prefs.getInt('timerOn');
@@ -226,6 +243,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     }
   }
 
+  /// Handles the alert notification when an alert is received. It plays a sound and shows a notification.
   Future<void> handleAlertNotification(String data, String title) async{
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
             AndroidNotificationDetails(
@@ -251,13 +269,13 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
       );
   }
 
+  /// Plays a sound effect when an alert is received.
   void playMetalPipe(){
     final player = AudioPlayer();
     player.play(AssetSource('sound_effects/metal-pipe.mp3'));
   }
 
-  bool _isDialogVisible = false;
-
+  /// Shows an alert dialog box with a title and message. It prevents multiple dialogs from being shown at the same time.
   void alertDialogBox(String title, String message) {
     if (mounted && !_isDialogVisible) {
       _isDialogVisible = true;
@@ -290,6 +308,7 @@ class _RunnerHomePageState extends State<RunnerHomePage> {
     super.dispose();
   }
 
+  /// Initializes the Bluetooth manager and sets up listeners for left and right data streams.
   @override
   void initState() {
     super.initState();

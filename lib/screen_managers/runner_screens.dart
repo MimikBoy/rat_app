@@ -12,6 +12,13 @@ const Color redButtons = Color.fromARGB(255, 211, 47, 47);
 const Color greenButtons = Color.fromARGB(255, 76, 175, 80);
 const Color greyButtons = Color.fromARGB(255, 158, 158, 158);
 
+/// A widget that manages the navigation and state of the Runner app.
+///
+/// Returns:
+/// - [RunnerHomePage] when the screen index is 0.
+/// - [RunnerDownloadPage] when the screen index is 1.
+/// - [RunnerSettingsPage] when the screen index is 2.
+/// - [EditParametersPage] when the screen index is 3.
 class RunnerPageManager extends StatefulWidget{
   const RunnerPageManager({super.key});
 
@@ -35,6 +42,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
           },
         );
 
+  /// Function to handle battery button press. If devices are already connected, it just asks for battery status. If not, it connects to the devices and then asks for battery status.
   Future<void> handleBatteryButtonPress() async {
     
     Logger().i('Battery button pressed');
@@ -60,11 +68,9 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
 
       BluetoothManager().sendData('battery');
     }
-
-    
-    
   }
 
+  /// Function to get the battery icon based on the battery percentage.
   IconData getBatteryIcon(int batteryPercentage) {
     if (batteryPercentage > 87) {
       return Icons.battery_full_rounded;
@@ -87,6 +93,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     }
   }
 
+  /// Function to handle battery percentage updates. It updates the icon and color based on the battery percentage.
   void handleBatteryPercentage(int batteryPercentage, bool isLeft){
     if (isLeft){
       setState(() {
@@ -101,6 +108,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     }
   } 
 
+  /// Function to change the settings screen based on what is pressed in the settings screen.
   void _changeSettingsScreen(int index) {
     setState(() {
       screenIndex = index;
@@ -129,6 +137,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     });
   }
 
+  /// Function to change the leading icon to the profile icon.
   void changeToProfile(){
     setState(() {
       leadingIcon = IconButton(
@@ -164,6 +173,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
     }
 
     return Scaffold(
+      // AppBar with a title and leading icon.
       appBar: AppBar(        
         title: Text(appBarTitle),
         leading: leadingIcon,
@@ -181,6 +191,7 @@ class _RunnerPageManagerState extends State<RunnerPageManager> {
         ],
       ),
       body: page,
+      // Bottom navigation bar with three items: Home, Downloads, and Settings.
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,

@@ -3,7 +3,16 @@ import 'package:logger/logger.dart';
 import 'runner_start_screens.dart';
 import 'trainer_start_screens.dart';
 
-// Used to create a page transition effect when navigating between screens.
+/// Creates a page transition effect when navigating between screens.
+///
+/// This function returns a [PageRouteBuilder] that slides the new page
+/// from the right to the left.
+///
+/// Parameters: 
+/// - [page]: The widget to navigate to.
+/// 
+/// Returns:
+/// - A [PageRouteBuilder] that defines the transition animation.
 PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   return PageRouteBuilder(
     transitionDuration: const Duration(milliseconds: 150),
@@ -21,7 +30,14 @@ PageRouteBuilder<dynamic> pageTransSwipeLeft(Widget page) {
   );
 }
 
-// WelcomeScreen widget to display the welcome screen
+/// WelcomeScreen is a StatelessWidget that serves as the initial screen of the app.
+/// 
+/// Parameters: 
+/// - [onContinue]: A callback function that is triggered when the user presses the "Continue" button that moves to 
+/// the next screen.
+/// 
+/// Returns:
+/// - [Scaffold] widget that contains the welcome message and a button to continue.
 class WelcomeScreen extends StatelessWidget {
   final void Function(int) onContinue;
   const WelcomeScreen({super.key, required this.onContinue});
@@ -71,7 +87,13 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-// To check if the user is a runner or a trainer
+/// WhatAreYou is a StatelessWidget that allows the user to select their role (Runner or Trainer).
+///
+/// Parameters: 
+/// - [onContinue]: A callback function that is triggered when the user selects a role and moves to the next screen.
+/// 
+/// Returns:
+/// - [Scaffold] widget that contains two buttons for selecting the role.
 class WhatAreYou extends StatelessWidget {
 final void Function(int) onContinue;
   const WhatAreYou({super.key, required this.onContinue});

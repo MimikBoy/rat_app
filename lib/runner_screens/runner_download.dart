@@ -6,6 +6,8 @@ import 'package:rat_app/utils/file_management.dart';
 const Color redButtons = Color.fromARGB(255, 211, 47, 47);
 const Color greenButtons = Color.fromARGB(255, 76, 175, 80);
 
+
+/// A widget that displays a list of downloaded files with options to move them to the Downloads folder or delete them.
 class RunnerDownloadPage extends StatefulWidget {
   const RunnerDownloadPage({super.key});
 
@@ -17,6 +19,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
   int itemCount = 0;
   List<String> currentList = [];
 
+  /// Loads the list of downloadable files from SharedPreferences.
   Future<void> _loadSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     currentList = prefs.getStringList('fileNames') ?? [];
@@ -25,6 +28,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
     });
   }
 
+  /// Moves the specified file from the apps local directory to any user specified location.
   void _moveToDownloads(String fileName) async {
     try{
       SaveFileHandler fileManager = SaveFileHandler();
@@ -48,6 +52,7 @@ class _RunnerDownloadPageState extends State<RunnerDownloadPage> {
     }
   }
 
+  /// Displays a confirmation dialog and deletes the specified file from the local app directory if confirmed.
   void _deleteFile(String fileName, int index) async {
     bool? confirmed = await showDialog<bool>(
     context: context,
